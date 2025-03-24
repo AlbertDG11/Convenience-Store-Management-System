@@ -1,0 +1,23 @@
+# Backend
+*.pyc
+__pycache__/
+
+venv/
+db.sqlite3
+/static/
+
+# React (Frontend)
+frontend/__pycache__/
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/static/frontend/main.js
+
+
+# IDE files
+.vscode/
+.idea/
+
+# System-specific files
+.DS_Store
+Thumbs.db
