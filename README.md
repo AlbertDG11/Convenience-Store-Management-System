@@ -1,7 +1,20 @@
-Music Controller
+Convenience Store Database Management System
 
+
+Initialise the project
 Backend (Django):
-Start the Django development server:
+python -m venv venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+
+Frontend:
+cd frontend
+npm install
+
+
+Running the project:
+Backend (Django):
 python manage.py runserver
 
 Frontend (React):
