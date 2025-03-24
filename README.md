@@ -6,13 +6,13 @@ Create the virtual environment:
 python -m venv venv
 ```
 
-Activate the virtual environment(Windows):
+Activate the virtual environment(Windows) (Optional):
 ```bash
 .venv\Scripts\activate
 ```
 
 
-Activate the virtual environment(Mac/Linux):<br>
+Activate the virtual environment(Mac/Linux) (Optional):
 ```bash
 source venv/bin/activate
 ```
@@ -38,6 +38,8 @@ npm install
 ## Run the project:
 #### Backend (Django):
 ```bash
+.venv\Scripts\activate # Windows, Optional
+source venv/bin/activate # Mac/Linux, Optional
 python manage.py runserver
 ```
 
