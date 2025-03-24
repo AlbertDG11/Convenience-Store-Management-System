@@ -1,30 +1,48 @@
 # Convenience Store Database Management System
 ## Initialise the project
-##### Backend (Django):
-Create the virtual environment:<br>
-`python -m venv venv`
+#### Backend (Django):
+Create the virtual environment:
+```bash
+python -m venv venv
+```
 
-Activate the virtual environment(Windows):<br>
-`.venv\Scripts\activate`
+Activate the virtual environment(Windows):
+```bash
+.venv\Scripts\activate
+```
+
+
 Activate the virtual environment(Mac/Linux):<br>
-`source venv/bin/activate`
+```bash
+source venv/bin/activate
+```
 
-Install dependency:<br>
-`pip install -r requirements.txt`
+Install dependency:
+```bash
+pip install -r requirements.txt
+```
 
-Migrate database:<br>
-`python manage.py migrate`
+Migrate database:
+```bash
+python manage.py migrate
+```
 
-##### Frontend (React):
-Move to frontend directory and install dependency:<br>
-`cd frontend`
-`npm install`
+#### Frontend (React):
+Move to frontend directory and install dependency:
+```bash
+cd frontend
+npm install
+```
 
 
 ## Run the project:
-###### Backend (Django):
-    python manage.py runserver
+#### Backend (Django):
+```bash
+python manage.py runserver
+```
 
-###### Frontend (React):
-    cd frontend
-    npm start
+#### Frontend (React):
+```bash
+cd frontend
+npm start
+```
