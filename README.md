@@ -33,7 +33,7 @@ Move to frontend directory and install dependency:
 cd frontend
 npm install
 ```
-
+<br>
 
 ## Run Project:
 #### Backend (Django)
@@ -43,7 +43,7 @@ source venv/bin/activate # Mac/Linux, Optional
 python manage.py runserver
 ```
 
-#### Frontend (React):
+#### Frontend (React)
 ```bash
 cd frontend
 npm start
