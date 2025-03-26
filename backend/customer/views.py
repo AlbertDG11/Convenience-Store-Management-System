@@ -3,7 +3,8 @@ from rest_framework import viewsets
 
 from backend.customer.models import Membership, CustomerAddress
 from backend.customer.serializers import MembershipSerializer, CustomerAddressSerializer
-
+from rest_framework.permissions import IsAuthenticated
+from backend.employee.permissions import IsSalesPersonOrManager
 
 # Create your views here.
 
@@ -14,7 +15,7 @@ class MembershipViewSet(viewsets.ModelViewSet):
     """
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
-    permission_classes = [IsAuthenticated, IsSalespersonOrManager]
+    permission_classes = [IsAuthenticated, IsSalesPersonOrManager]
 
 
 class CustomerAddressViewSet(viewsets.ModelViewSet):
@@ -24,7 +25,7 @@ class CustomerAddressViewSet(viewsets.ModelViewSet):
     """
     queryset = CustomerAddress.objects.all()
     serializer_class = CustomerAddressSerializer
-    permission_classes = [IsAuthenticated, IsSalespersonOrManager]
+    permission_classes = [IsAuthenticated, IsSalesPersonOrManager]
 
     def get_queryset(self):
         """
