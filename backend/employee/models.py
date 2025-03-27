@@ -17,4 +17,7 @@ class Employee(models.Model):
         return self.name
     
 class Salesperson(models.Model):
-    
+    pass
+
+class Manager(models.Model):
+    pass
