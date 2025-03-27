@@ -35,7 +35,7 @@ npm install
 ```
 <br>
 
-## Run Project:
+## Run Project
 #### Backend (Django)
 ```bash
 .venv\Scripts\activate # Windows, Optional
