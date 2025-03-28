@@ -7,7 +7,7 @@ class CustomerAddressSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = CustomerAddress
-        fields = '__all__'
+        fields = ['id', 'membership', 'street', 'city', 'province', 'postal_code', 'country']
 
 class MembershipSerializer(serializers.ModelSerializer):
     """
@@ -16,6 +16,6 @@ class MembershipSerializer(serializers.ModelSerializer):
     address = CustomerAddressSerializer(many=True, read_only=True)
     class Meta:
         model = Membership
-        fields = '__all__'
+        fields = ['id', 'name', 'address', 'email', 'phone']
 
 
