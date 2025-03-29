@@ -4,7 +4,7 @@ from django.db import models
 
 
 
-class product(models.Model):
+class Product(models.Model):
 
     # add 'name' attributes
     pass

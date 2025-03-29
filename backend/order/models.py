@@ -3,11 +3,11 @@ from django.db import models
 
 from backend.customer.models import Membership
 from backend.employee.models import Salesperson
-from backend.product.models import product
+from backend.product.models import Product
 
-class order(models.Model):
+class Order(models.Model):
     """
-    Represents an order
+    Represents an Order
     An Order can contain multiple Order items
     """
 
@@ -27,15 +27,15 @@ class order(models.Model):
     def __str__(self):
         return f"Order {self.id}"
 
-class orderItem(models.Model):
+class OrderItem(models.Model):
     """
-    Represents an order item
+    Represents an Order item
     """
 
-    order = models.ForeignKey(order, on_delete=models.CASCADE)
-    product = models.ForeignKey(product, on_delete=models.RESTRICT)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.RESTRICT)
 
-    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)]) # At least 1
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity} (Order #{self.order.id})"
