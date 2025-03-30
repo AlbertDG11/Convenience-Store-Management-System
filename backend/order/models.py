@@ -11,8 +11,8 @@ class Order(models.Model):
     An Order can contain multiple Order items
     """
 
-    Membership = models.ForeignKey(Membership, on_delete=models.SET_NULL, null=True)
-    Salesperson = models.ForeignKey(Salesperson, on_delete=models.SET_NULL, null=True)
+    membership = models.ForeignKey(Membership, on_delete=models.SET_NULL, null=True)
+    salesperson = models.ForeignKey(Salesperson, on_delete=models.SET_NULL, null=True)
 
     create_time = models.DateTimeField(auto_now_add=True)
     delivery_address = models.CharField(max_length=100)
@@ -20,7 +20,7 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=10, choices=payment_method_choices)
     Order_status_choice = ['Placed', 'Canceled']
     status = models.CharField(max_length=100, choices=Order_status_choice, default='Placed')
-    customer_notes = models.TextField()
+    customer_notes = models.TextField(blank=True, null=True)
 
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
 
