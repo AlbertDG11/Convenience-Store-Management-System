@@ -15,12 +15,12 @@ class Order(models.Model):
     Salesperson = models.ForeignKey(Salesperson, on_delete=models.SET_NULL, null=True)
 
     create_time = models.DateTimeField(auto_now_add=True)
-    Delivery_address = models.CharField(max_length=100)
+    delivery_address = models.CharField(max_length=100)
     payment_method_choices = ['Cash', 'Card']
     payment_method = models.CharField(max_length=10, choices=payment_method_choices)
     Order_status_choice = ['Placed', 'Canceled']
     status = models.CharField(max_length=100, choices=Order_status_choice, default='Placed')
-    Customer_notes = models.TextField()
+    customer_notes = models.TextField()
 
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
 
