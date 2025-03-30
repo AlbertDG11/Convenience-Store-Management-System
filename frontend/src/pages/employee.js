@@ -1,6 +1,30 @@
 import React, { useEffect, useState } from 'react'
 
 
+function sendTestData() {
+    fetch('http://localhost:8000/api/employee/add/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            name: "Test User",
+            email: "test@example.com",
+            phone_number: "1234567890",
+            salary: 50000,
+        }),
+    })
+    .then((res) => res.json())
+    .then((data) => {
+        console.log("Server responded:", data);
+        alert("Server response: " + data.message);
+    })
+    .catch((err) => {
+        console.error("Error sending data:", err);
+    });
+}
+
+
 function Employee(props) {
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true); // 加载状态
@@ -41,6 +65,7 @@ function Employee(props) {
             </li>
         ))}
         </ul>
+        <button onClick={sendTestData}>Send Test Data</button>
     </div>
     );    
 }
