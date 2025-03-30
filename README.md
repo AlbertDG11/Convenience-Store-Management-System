@@ -32,6 +32,7 @@ Move to frontend directory and install dependency:
 ```bash
 cd frontend
 npm install
+npm install react-router-dom
 ```
 <br>
 
