@@ -70,7 +70,7 @@ class PurchasePerson(models.Model):
         on_delete=models.CASCADE,
         primary_key=True
     )
-    Purchase_section = models.CharField(max_length=50, null=True, blank=True)
+    purchase_section = models.CharField(max_length=50, null=True, blank=True)
 
     class Meta:
         db_table = 'purchase_person'
