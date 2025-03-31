@@ -9,9 +9,7 @@ from backend.employee.permissions import IsSalesPersonOrManager
 from backend.order.models import Order
 from backend.order.serializers import OrderSerializer
 
-
 # Create your views here.
-
 
 class OrderViewSet(viewsets.ModelViewSet):
     """
@@ -56,6 +54,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Return updated data
         serializer = self.get_serializer(order)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
 
 
 
