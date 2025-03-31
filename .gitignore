@@ -1,6 +1,7 @@
 # Backend
 *.pyc
 __pycache__/
+backend/web/
 
 venv/
 db.sqlite3
