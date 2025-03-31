@@ -19,7 +19,7 @@ class CustomerAddress(models.Model):
     Represents customer address
     """
 
-    membership = models.ForeignKey(Membership, on_delete=models.CASCADE, related_name='address')
+    membership = models.ForeignKey(Membership, on_delete=models.CASCADE, related_name='address') # So membership.address.all() can retrieve addresses
     street = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     province = models.CharField(max_length=100)

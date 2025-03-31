@@ -102,7 +102,7 @@ class OrderSerializer(serializers.ModelSerializer):
                 # Recalculate total with new items.
                 new_total_amount = 0
                 for item in items:
-                    pro = item['Product']
+                    pro = item['product']
                     quantity = item['quantity']
                     price = pro.price
                     new_total_amount += quantity * price
