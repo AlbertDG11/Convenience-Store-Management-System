@@ -1,4 +1,4 @@
-from django.shortcuts import render
+#from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -8,8 +8,8 @@ from .serializer import *
 # Create your views here.
 from django.http import HttpResponse
 
-def index(request):
-    return HttpResponse("Employee page")
+# def index(request):
+#     return HttpResponse("Employee page")
 
 
 class EmployeeView(APIView):
@@ -19,6 +19,11 @@ class EmployeeView(APIView):
         print("Is asking" + str(EmployeeView.i))
         employees = Employee.objects.all()
         serializer = EmployeeSerializer(employees, many=True)
+        
+        emp_ids = []
+        for employee in serializer.data:
+            emp_ids.append(employee['employee_id'])
+        
         return Response(serializer.data)
     
     def post(self, request):

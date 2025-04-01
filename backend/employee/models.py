@@ -20,7 +20,7 @@ class Employee(models.Model):
 
 # Table Employee Address
 class EmployeeAddress(models.Model):
-    employee = models.ForeignKey(
+    employee_id = models.ForeignKey(
         Employee,
         on_delete=models.CASCADE
     )
@@ -30,17 +30,17 @@ class EmployeeAddress(models.Model):
     post_code = models.CharField(max_length=7)
 
     class Meta:
-        unique_together = ('employee', 'province', 'city', 'street_address', 'post_code')
+        unique_together = ('employee_id', 'province', 'city', 'street_address', 'post_code')
         db_table = 'employee_address'
         managed = False
 
 
 # Table Salesperson
 class Salesperson(models.Model):
-    employee = models.ForeignKey(
+    employee_id = models.OneToOneField(
         Employee,
         on_delete=models.CASCADE,
-        primary_key=True
+        #primary_key=True
     )
     sales_target = models.FloatField(null=True, blank=True)
 
@@ -51,10 +51,10 @@ class Salesperson(models.Model):
 
 # Table Manager
 class Manager(models.Model):
-    employee = models.ForeignKey(
+    employee_id = models.OneToOneField(
         Employee,
         on_delete=models.CASCADE,
-        primary_key=True
+        #primary_key=True
     )
     management_level = models.CharField(max_length=20, null=True, blank=True)
 
@@ -65,10 +65,10 @@ class Manager(models.Model):
 
 # Table Purchase Person
 class PurchasePerson(models.Model):
-    employee = models.ForeignKey(
+    employee_id = models.OneToOneField(
         Employee,
         on_delete=models.CASCADE,
-        primary_key=True
+        #primary_key=True
     )
     purchase_section = models.CharField(max_length=50, null=True, blank=True)
 
@@ -79,32 +79,32 @@ class PurchasePerson(models.Model):
 
 # Table Salesperson Manager Management
 class SalespersonManagerManagement(models.Model):
-    salesperson = models.ForeignKey(
+    salesperson_id = models.ForeignKey(
         Salesperson,
         on_delete=models.PROTECT)
-    manager = models.ForeignKey(
+    manager_id = models.ForeignKey(
         Manager,
         on_delete=models.PROTECT
         )
 
     class Meta:
-        unique_together = ('salesperson', 'manager')
+        unique_together = ('salesperson_id', 'manager_id')
         db_table = 'salesperson_manager_management'
         managed = False
 
 
 # Table Purchaseperson Manager Management
 class PurchasepersonManagerManagement(models.Model):
-    purchaseperson = models.ForeignKey(
+    purchaseperson_id = models.ForeignKey(
         PurchasePerson,
         on_delete=models.PROTECT
         )
-    manager = models.ForeignKey(
+    manager_id = models.ForeignKey(
         Manager,
         on_delete=models.PROTECT
         )
 
     class Meta:
-        unique_together = ('purchaseperson', 'manager')
+        unique_together = ('purchaseperson_id', 'manager_id')
         db_table = 'purchaseperson_manager_management'
         managed = False

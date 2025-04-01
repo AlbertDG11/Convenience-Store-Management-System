@@ -11,11 +11,11 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
 # Serialiser for Employee Address model
 class EmployeeAddressSerializer(serializers.ModelSerializer):
-    employee = EmployeeSerializer()
+    employee_id = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = EmployeeAddress
-        fields = ['employee', 'province', 'city', 'street_address', 'post_code']
+        fields = ['employee_id', 'province', 'city', 'street_address', 'post_code']
 
 
 # Serialiser for Salesperson model
