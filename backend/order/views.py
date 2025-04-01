@@ -54,11 +54,3 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Return updated data
         serializer = self.get_serializer(order)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-
-
-
-
-
