@@ -6,11 +6,15 @@ Create the virtual environment:
 python -m venv venv
 ```
 
-Activate the virtual environment(Windows) (Optional):
+Activate the virtual environment(Windows CMD) (Optional):
 ```bash
-.venv\Scripts\activate
+venv\Scripts\activate
 ```
 
+Activate the virtual environment(Windows PowerShell) (Optional):
+```bash
+venv\Scripts\Activate.ps1
+```
 
 Activate the virtual environment(Mac/Linux) (Optional):
 ```bash
@@ -39,7 +43,8 @@ npm install react-router-dom
 ## Run Project
 #### Backend (Django)
 ```bash
-.venv\Scripts\activate # Windows, Optional
+venv\Scripts\activate # Windows CMD, Optional
+venv\Scripts\Activate.ps1 # Windows PowerShell, Optional
 source venv/bin/activate # Mac/Linux, Optional
 python manage.py runserver
 ```
