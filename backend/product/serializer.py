@@ -4,7 +4,7 @@ from .models import Product, Foodproduct, Nonfoodproduct, Inventory
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'discount', 'price', 'price_after']
+        fields = ['product_id', 'discount', 'price', 'price_after']
         
 class FoodproductSerializer(serializers.ModelSerializer):
     class Meta:
