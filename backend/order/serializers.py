@@ -10,9 +10,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
     Serializer for an Order item
     """
 
+    product_name = serializers.ReadOnlyField(source='product.name')
     class Meta:
         model = OrderItem
-        fields = ['id', 'order', 'product', 'quantity']
+        fields = ['id', 'order', 'product', 'quantity', 'product_name']
+        read_only_fields = ['id', 'product_name']
 
 
     def validate(self, data):
