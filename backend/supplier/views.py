@@ -1,11 +1,19 @@
 from django.shortcuts import render
 from rest_framework import status, viewsets
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+from backend.employee.permissions import IsPurchasePersonOrManager
 from .models import Supplier
 from .serializer import SupplierSerializer
 
 class SupplierViewSet(viewsets.ViewSet):
+    
+    """
+    queryset = Supplier.objects.all()
+    serializer_class = SupplierSerializer
+    """
+    permission_classes = [IsAuthenticated, IsPurchasePersonOrManager]
     
     def list(self, request):
         suppliers = Supplier.objects.all()
