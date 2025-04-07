@@ -33,6 +33,7 @@ class CustomerAddressViewSet(viewsets.ModelViewSet):
         """
         queryset = CustomerAddress.objects.all()
         membership_id = self.request.query_params.get('membership_id')
+
         if membership_id:
             queryset = queryset.filter(membership_id=membership_id)
         return queryset

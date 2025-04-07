@@ -11,7 +11,7 @@ class CustomerAddressSerializer(serializers.ModelSerializer):
 
 class MembershipSerializer(serializers.ModelSerializer):
     """
-    Serializer for Membership
+    Serializer for membership
     """
     address = CustomerAddressSerializer(many=True, read_only=True)
     class Meta:
