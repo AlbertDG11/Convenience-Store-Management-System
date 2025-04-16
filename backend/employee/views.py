@@ -55,6 +55,7 @@ class EmployeeView(APIView):
                 emp.management += managers_to_purchasepersons.get(emp.employee_id, [])
         
         serializer = WholeEmployeeSerializer(employees, many=True)
+        print("")
 
         return Response(serializer.data)
     
