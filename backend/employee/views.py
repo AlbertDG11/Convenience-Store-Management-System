@@ -55,15 +55,87 @@ class EmployeeView(APIView):
                 emp.management += managers_to_purchasepersons.get(emp.employee_id, [])
         
         serializer = WholeEmployeeSerializer(employees, many=True)
-        print("")
 
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
-        print("POST received with data:", request.data)
-        # serializer = EmployeeSerializer(data=request.data)
-        # if serializer.is_valid():
-        #     serializer.save()
-        #     return Response({"message": "Employee added successfully"}, status=status.HTTP_201_CREATED)
-        # else:
-        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serialiser = WholeEmployeeSerialiser(data=request.data)
+        if serialiser.is_valid():
+            valid_data = serialiser.validated_data
+            employee = Employee.objects.create(
+                employee_id=valid_data['employee_id'],
+                name=valid_data['name'],
+                email=valid_data['email'],
+                phone_number=valid_data['phone_number'],
+                salary=valid_data['salary'],
+                login_password=valid_data['login_password']
+            )
+
+            for address in valid_data['address']:
+                EmployeeAddress.objects.create(
+                    employee=employee,
+                    province=address['province'],
+                    city=address['city'],
+                    street_address=address['street_address']
+                    post_code=address['post_code']
+                )
+
+            if valid_data['role'] == 0:
+                Salesperson.objects.create(
+                    employee_id=valid_data['employee_id'],
+                    sales_target=valid_data.get('sales_target')
+                )
+                SalespersonManagerManagement.create(
+                    salesperson_id=valid_data['employee_id'],
+                    manager_id=valid_data.get('management')[0]
+                )
+            
+            elif valid_data['role'] == 1:
+                PurchasePerson.objects.create(
+                    employee_id=valid_data['employee_id'],
+                    purchase_section=valid_data.get('purchase_section')
+                )
+                PurchasepersonManagerManagement.create(
+                    salesperson_id=valid_data['employee_id'],
+                    manager_id=valid_data.get('management')[0]
+                )
+
+            elif valid_data['role'] == 2:
+                Manager.objects.create(
+                    employee_id=valid_data['employee_id'],
+                    management_level=valid_data.get('management_level')
+                )
+
+            employee.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request):
+        serialiser = WholeEmployeeSerialiser(data=request.data)
+
+        if serialiser.is_valid():
+            data = serialiser.validated_data
+
+            employee = Employee.objects.get(pk=data['employee_id'])
+
+            employee['name'] = data['name'],
+            employee['email'] = data['email'],
+            employee['phone_number'] = data['phone_number'],
+            employee['salary'] = data['salary'],
+            employee['login_password'] = data['login_password']
+
+            employee.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        serialiser = WholeEmployeeSerialiser(data=request.data)
+        if serialiser.is_valid():
+            data = serialiser.validated_data
+            employee = Employee.objects.get(pk=data['employee_id'])
+            employee.delete()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
