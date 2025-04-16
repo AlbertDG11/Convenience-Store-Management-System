@@ -20,6 +20,13 @@ class EmployeeView(APIView):
     def get(self, request):
         # EmployeeView.i += 1
         # print("Is asking" + str(EmployeeView.i))
+        # salespersons = Salesperson.objects.values(
+        #     'employee_id',
+        #     'employee_id__name',
+        #     'employee_id__email',
+        #     'employee_id__phone_number',
+        #     'employee_id__salary'
+        # )
         salespersons = Salesperson.objects.all()
         #salespersons_serializer = SalespersonSerializer(salespersons, many=True)
         purchasepersons = PurchasePerson.objects.all()
@@ -27,32 +34,66 @@ class EmployeeView(APIView):
         managers = Manager.objects.all()
         #managers_serializer = ManagerSerializer(managers, many=True)
 
-        employees = salespersons + purchasepersons + managers
+        employees = []
+        for salesperson in salespersons:
+            employees.append({
+                'employee_id': salesperson.employee_id.employee_id,
+                'name': salesperson.employee_id.name,
+                'email': salesperson.employee_id.email,
+                'phone': salesperson.employee_id.phone_number,
+                'salary': salesperson.employee_id.salary,
+                'sales_target': salesperson.sales_target,
+                'role': 0,
+            })
         
-        saleperson_manager_relations = SalespersonManagerManagement.objects.all()
-        purchaseperson_manager_relations = PurchasepersonManagerManagement.objects.all()
+        for purchaseperson in purchasepersons:
+            employees.append({
+                'employee_id': purchaseperson.employee_id.employee_id,
+                'name': purchaseperson.employee_id.name,
+                'email': purchaseperson.employee_id.email,
+                'phone': purchaseperson.employee_id.phone_number,
+                'salary': purchaseperson.employee_id.salary,
+                'purchase_section': purchaseperson.purchase_section,
+                'role': 1
+            })
+
+        for manager in managers:
+            employees.append({
+                'employee_id': manager.employee_id.employee_id,
+                'name': manager.employee_id.name,
+                'email': manager.employee_id.email,
+                'phone': manager.employee_id.phone_number,
+                'salary': manager.employee_id.salary,
+                'management_level': manager.management_level,
+                'role': 2
+            })        
+
+        #employees = list(salespersons) + list(purchasepersons) + list(managers)
+        
+        saleperson_manager_relations = SalespersonManagerManagement.objects.values_list('salesperson_id', 'manager_id')
+        purchaseperson_manager_relations = PurchasepersonManagerManagement.objects.values_list('purchaseperson_id', 'manager_id')
 
         managers_to_salepersons = defaultdict(list)
         salepersons_to_managers = defaultdict(list)
         managers_to_purchasepersons = defaultdict(list)
         purchasepersons_to_managers = defaultdict(list)
 
-        for rel in saleperson_manager_relations:
-            managers_to_salepersons[rel.manager_id].append(rel.salesperson_id)
-            salepersons_to_managers[rel.salesperson_id].append(rel.manager_id)
+        for salesperson_id, manager_id in saleperson_manager_relations:
+            managers_to_salepersons[manager_id].append(salesperson_id)
+            salepersons_to_managers[salesperson_id].append(manager_id)
         
-        for rel in purchaseperson_manager_relations:
-            managers_to_purchasepersons[rel.manager_id].append(rel.purchaseperson_id)
-            purchasepersons_to_managers[rel.purchaseperson_id].append(rel.manager_id)
+        for purchaseperson_id, manager_id in purchaseperson_manager_relations:
+            managers_to_purchasepersons[manager_id].append(purchaseperson_id)
+            purchasepersons_to_managers[purchaseperson_id].append(manager_id)
 
         for emp in employees:
-            if isinstance(emp, Salesperson):
-                emp.management = salepersons_to_managers.get(emp.employee_id, [])
-            elif isinstance(emp, PurchasePerson):
-                emp.management = purchasepersons_to_managers.get(emp.employee_id, [])
-            else:
-                emp.management = managers_to_salepersons.get(emp.employee_id, [])
-                emp.management += managers_to_purchasepersons.get(emp.employee_id, [])
+            if emp['role'] == 0:
+                emp['management'] = salepersons_to_managers.get(emp['employee_id'], [])
+            elif emp['role'] == 1:
+                emp['management'] = purchasepersons_to_managers.get(emp['employee_id'], [])
+            elif emp['role'] == 2:
+                emp['management'] = managers_to_salepersons.get(emp['employee_id'], [])
+                emp['management'] += managers_to_purchasepersons.get(emp['employee_id'], [])
         
         serializer = WholeEmployeeSerializer(employees, many=True)
 
@@ -76,7 +117,7 @@ class EmployeeView(APIView):
                     employee=employee,
                     province=address['province'],
                     city=address['city'],
-                    street_address=address['street_address']
+                    street_address=address['street_address'],
                     post_code=address['post_code']
                 )
 

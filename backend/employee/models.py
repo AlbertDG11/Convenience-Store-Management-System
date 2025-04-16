@@ -17,6 +17,10 @@ class Employee(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def id(self):
+        return self.employee_id
+
 
 # Table Employee Address
 class EmployeeAddress(models.Model):
@@ -40,9 +44,14 @@ class Salesperson(models.Model):
     employee_id = models.OneToOneField(
         Employee,
         on_delete=models.CASCADE,
-        #primary_key=True
+        primary_key=True,
+        db_column='employee_id'
     )
     sales_target = models.FloatField(null=True, blank=True)
+
+    @property
+    def id(self):
+        return self.employee_id
 
     class Meta:
         db_table = 'salesperson'
@@ -54,13 +63,18 @@ class Manager(models.Model):
     employee_id = models.OneToOneField(
         Employee,
         on_delete=models.CASCADE,
-        #primary_key=True
+        primary_key=True,
+        db_column='employee_id'
     )
     management_level = models.CharField(max_length=20, null=True, blank=True)
 
     class Meta:
         db_table = 'manager'
         managed = False
+    
+    @property
+    def id(self):
+        return self.employee_id
 
 
 # Table Purchase Person
@@ -68,7 +82,8 @@ class PurchasePerson(models.Model):
     employee_id = models.OneToOneField(
         Employee,
         on_delete=models.CASCADE,
-        #primary_key=True
+        primary_key=True,
+        db_column='employee_id'
     )
     purchase_section = models.CharField(max_length=50, null=True, blank=True)
 
@@ -76,15 +91,22 @@ class PurchasePerson(models.Model):
         db_table = 'purchase_person'
         managed = False
 
+    @property
+    def id(self):
+        return self.employee_id
+
 
 # Table Salesperson Manager Management
 class SalespersonManagerManagement(models.Model):
     salesperson_id = models.ForeignKey(
         Salesperson,
-        on_delete=models.PROTECT)
+        on_delete=models.PROTECT,
+        db_column='salesperson_employee_id'
+        )
     manager_id = models.ForeignKey(
         Manager,
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT,
+        db_column='manager_employee_id'
         )
 
     class Meta:
@@ -92,16 +114,22 @@ class SalespersonManagerManagement(models.Model):
         db_table = 'salesperson_manager_management'
         managed = False
 
+    @property
+    def id(self):
+        return f"{self.salesperson_id}_{self.manager_id}"
+
 
 # Table Purchaseperson Manager Management
 class PurchasepersonManagerManagement(models.Model):
     purchaseperson_id = models.ForeignKey(
         PurchasePerson,
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT,
+        db_column='purcharseperson_employee_id'
         )
     manager_id = models.ForeignKey(
         Manager,
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT,
+        db_column='manager_employee_id'
         )
 
     class Meta:
