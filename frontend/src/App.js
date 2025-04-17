@@ -1,34 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
-import {BrowserRouter, Route, Routes} from "react-router-dom"
-import { Login, Employee } from './pages';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-function App() {
+import Login from './pages/login';
+import Employee from './pages/employee';
+import Dashboard from './pages/index';
+
+import Header from './components/Header';
+import Sidebar from './components/Sidebar';
+import ProtectedRoute from './components/ProtectedRoute';
+
+export default function App() {
   return (
-    // <div className="App" asfasf>
-    //   <header className="App-header">
-    //     <img src={logo} className="App-logo" alt="logo" />
-    //     <p>
-    //       Edit <code>src/App.js</code> and save to reload.
-    //     </p>
-    //     <a
-    //       className="App-link"
-    //       href="https://reactjs.org"
-    //       target="_blank"
-    //       rel="noopener noreferrer"
-    //     >
-    //       Learn React
-    //     </a>
-    //   </header>
-    // </div>np
     <BrowserRouter>
       <Routes>
-        <Route path='/' element={<h1>Home</h1>}/>
-        <Route path='/login' element={<Login />}/>
-        <Route path='/employee' element={<Employee/>}/>
+        {/* 公开路由 */}
+        <Route path="/login" element={<Login />} />
+
+        {/* 私有路由 */}
+        <Route path="/*" element={<ProtectedRoute />}>
+          <Route
+            path="*"
+            element={
+              <>
+                <Header />
+                <div style={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
+                  <Sidebar />
+                  <div style={{ flex: 1, padding: 16, overflow: 'auto' }}>
+                    {/* 默认首页 */}
+                    <Routes>
+                      <Route index element={<Dashboard />} />
+                      {/* 员工页 */}
+                      <Route path="employee" element={<Employee />} />
+                    </Routes>
+                  </div>
+                </div>
+              </>
+            }
+          />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
 }
-
-export default App;
