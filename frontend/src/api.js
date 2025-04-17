@@ -10,28 +10,46 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// 2. 导出具体接口：
-//    每个函数返回一个 Promise，组件中用 await/then 获取结果
 
-// 登录：传入 { username, password }
+
+// authentication
+// 登录接口：传入 { username, password }，返回 token 或用户信息
 export function login(credentials) {
   return api.post('authentication/login/', credentials);
 }
 
-// 获取所有订单列表
-export function fetchOrders() {
-  return api.get('order/orders/');
-}
 
-// 创建新订单：data 示例 { items: [...], total: 123 }
-export function createOrder(data) {
-  return api.post('order/orders/', data);
-}
+// authentication
+export function register(data) { return api.post('authentication/register/', data); }
 
-// 获取所有产品
-export function fetchProducts() {
-  return api.get('product/products/');
-}
+// customer
+export function fetchCustomers() { return api.get('customer/customers/'); }
+export function createCustomer(data) { return api.post('customer/customers/', data); }
+export function updateCustomer(id, data) { return api.put(`customer/customers/${id}/`, data); }
+// … deleteCustomer
 
-// 更多接口按需继续添加，例如：
-// export function fetchEmployees() { return api.get('employee/employees/'); }
+// employee
+export function fetchEmployees() { return api.get('employee/employees/'); }
+// … createEmployee, updateEmployee, deleteEmployee
+
+// supplier
+export function fetchSuppliers() { return api.get('supplier/suppliers/'); }
+// … createSupplier, …
+
+// product
+export function fetchProducts() { return api.get('product/products/'); }
+// … createProduct, …
+
+// order
+export function fetchOrders() { return api.get('order/orders/'); }
+// … createOrder, …
+
+// purchase
+export function fetchPurchases() { return api.get('purchase/purchases/'); }
+// … createPurchase, …
+
+// report
+export function fetchReports(params) { return api.get('report/reports/', { params }); }
+// 例如按日期、模块维度查询
+
+// 根据需要继续添加其它接口
