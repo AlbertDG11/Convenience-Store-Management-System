@@ -62,8 +62,14 @@ function Employee(props) {
         {employees.map((emp) => (
             <li key={emp.employee_id}>
             {emp.name} - {emp.email} - {emp.phone_number} - {emp.salary}
+            - {emp.addresses} - {emp.role} - {emp.sales_target}
+            - {emp.purchase_section} - {emp.management_level}
+            - {emp.management}
+            <button>Update</button>
+            <button>Delete</button>
             </li>
         ))}
+        <button>Add</button>
         </ul>
         <button onClick={sendTestData}>Send Test Data</button>
     </div>
