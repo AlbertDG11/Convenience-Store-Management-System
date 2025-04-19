@@ -24,6 +24,7 @@ class Employee(models.Model):
 
 # Table Employee Address
 class EmployeeAddress(models.Model):
+    #id = models.AutoField(primary_key=True)
     employee_id = models.ForeignKey(
         Employee,
         on_delete=models.CASCADE

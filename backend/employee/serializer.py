@@ -19,6 +19,11 @@ class EmployeeAddressSerializer(serializers.ModelSerializer):
         fields = ['employee_id', 'province', 'city', 'street_address', 'post_code']
 
 
+class ManagementRelationSerializer(serializers.Serializer):
+    employee_id = serializers.IntegerField(required=False, allow_null=True)
+    name = serializers.CharField(required=False, allow_null=True)
+    role = serializers.IntegerField(required=False, allow_null=True)
+
 # Serialiser for Whole Employee model
 class WholeEmployeeSerializer(serializers.Serializer):
     employee_id = serializers.IntegerField(required=False, allow_null=True)
@@ -32,7 +37,8 @@ class WholeEmployeeSerializer(serializers.Serializer):
     sales_target = serializers.FloatField(required=False, allow_null=True)
     purchase_section = serializers.CharField(required=False, allow_null=True)
     management_level = serializers.CharField(required=False, allow_null=True)
-    management = serializers.ListField(child = serializers.IntegerField(), required=False, allow_null=True)
+    #management = serializers.ListField(child = serializers.IntegerField(), required=False, allow_null=True)
+    management = ManagementRelationSerializer(many=True, required=False, allow_null=True)
 
 
 # # Serialiser for Salesperson model

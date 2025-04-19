@@ -20,3 +20,5 @@ frontend/dist/
 # System-specific files
 .DS_Store
 Thumbs.db
+
+example.txt
