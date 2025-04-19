@@ -20,3 +20,5 @@ frontend/dist/
 # System-specific files
 .DS_Store
 Thumbs.db
+
+/backend/employee/migrations/0001_initial.py
