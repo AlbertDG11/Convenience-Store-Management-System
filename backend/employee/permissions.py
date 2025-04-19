@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from models import Salesperson, Manager, PurchasePerson
+from .models import Salesperson, Manager, PurchasePerson
 
 
 class IsSalesPersonOrManager(permissions.BasePermission):

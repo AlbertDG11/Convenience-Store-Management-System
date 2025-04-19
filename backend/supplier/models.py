@@ -16,7 +16,7 @@ class Supplier(models.Model):
 class SupplierAddress(models.Model):
     id = models.AutoField(primary_key=True)
     supplier = models.ForeignKey(
-        Supplier, on_delete=models.CASCADE, db_column='Supplier_id'
+        Supplier, on_delete=models.CASCADE, db_column='Supplier_id', related_name='addresses'
     )
     city = models.CharField(max_length=50)
     province = models.CharField(max_length=50)

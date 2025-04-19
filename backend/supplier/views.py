@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404
 from backend.employee.permissions import IsPurchasePersonOrManager
 from .models import Supplier
 from .serializer import SupplierSerializer
+from .models import SupplierAddress
+from .serializer import SupplierAddressSerializer
 
 class SupplierViewSet(viewsets.ViewSet):
     
@@ -13,7 +15,7 @@ class SupplierViewSet(viewsets.ViewSet):
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
     """
-    permission_classes = [IsAuthenticated, IsPurchasePersonOrManager]
+    #permission_classes = [IsAuthenticated, IsPurchasePersonOrManager]
     
     def list(self, request):
         suppliers = Supplier.objects.all()
@@ -52,3 +54,7 @@ class SupplierViewSet(viewsets.ViewSet):
         supplier = get_object_or_404(Supplier, pk=pk)
         supplier.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class SupplieraddressViewSet(viewsets.ModelViewSet):
+    queryset = SupplierAddress.objects.all()
+    serializer_class = SupplierAddressSerializer
