@@ -1,3 +1,4 @@
+// src/components/PurchaseForm.jsx
 import React, { useEffect, useState } from 'react';
 import { Paper, Typography, TextField, Button } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -7,29 +8,66 @@ export default function PurchaseForm() {
   const { id } = useParams();
   const isNew = !id;
   const [form, setForm] = useState({ supplier_id: '', total_cost: '', date: '' });
-  const nav = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isNew) {
-      fetchPurchaseById(id).then(res => setForm(res.data)).catch(console.error);
+      fetchPurchaseById(id)
+        .then((res) => setForm(res.data))
+        .catch((err) => console.error(err));
     }
-  }, [id]);
+  }, [id, isNew]);
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-  const handleSubmit = e => {
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const fn = isNew ? createPurchase : updatePurchase;
-    fn(id, form).then(() => nav('/purchases')).catch(err => alert('保存失败: '+err.message));
+    const action = isNew ? createPurchase : updatePurchase;
+    action(id, form)
+      .then(() => navigate('/purchases'))
+      .catch((err) => alert('Save failed: ' + err.message));
   };
 
   return (
     <Paper sx={{ p: 3 }}>
-      <Typography variant="h6">{isNew ? '新建采购' : `编辑采购 #${id}`}</Typography>
+      <Typography variant="h6">
+        {isNew ? 'Create Purchase' : `Edit Purchase #${id}`}
+      </Typography>
       <form onSubmit={handleSubmit} style={{ marginTop: 16 }}>
-        <TextField name="supplier_id" label="供应商 ID" value={form.supplier_id} onChange={handleChange} fullWidth required sx={{ mb:2 }} />
-        <TextField name="total_cost" label="总成本" type="number" value={form.total_cost} onChange={handleChange} fullWidth required sx={{ mb:2 }} />
-        <TextField name="date" label="日期" type="date" InputLabelProps={{ shrink: true }} value={form.date} onChange={handleChange} fullWidth sx={{ mb:2 }} />
-        <Button variant="contained" type="submit">保存</Button>
+        <TextField
+          name="supplier_id"
+          label="Supplier ID"
+          value={form.supplier_id}
+          onChange={handleChange}
+          fullWidth
+          required
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          name="total_cost"
+          label="Total Cost"
+          type="number"
+          value={form.total_cost}
+          onChange={handleChange}
+          fullWidth
+          required
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          name="date"
+          label="Date"
+          type="date"
+          InputLabelProps={{ shrink: true }}
+          value={form.date}
+          onChange={handleChange}
+          fullWidth
+          sx={{ mb: 2 }}
+        />
+        <Button variant="contained" type="submit">
+          Save
+        </Button>
       </form>
-    </Paper>)
+    </Paper>
+  );
 }

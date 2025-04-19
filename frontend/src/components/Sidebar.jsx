@@ -1,11 +1,37 @@
 // src/components/Sidebar.jsx
+import React from 'react';
+import { Drawer, List, ListItem, ListItemText } from '@mui/material';
+import { useNavigate, useLocation } from 'react-router-dom';
+
 const menuItems = [
-  { text: '仪表盘', path: '/' },
-  { text: '订单管理', path: '/orders' },
-  { text: '产品管理', path: '/products' },
-  { text: '采购管理', path: '/purchases' },
-  { text: '供应商管理', path: '/suppliers' },
-  { text: '会员管理', path: '/customers' },
-  { text: '员工管理', path: '/employees' },
-  { text: '报表分析', path: '/reports' },
+  { text: 'Dashboard', path: '/' },
+  { text: 'Order Management', path: '/orders' },
+  { text: 'Product Management', path: '/products' },
+  { text: 'Purchase Management', path: '/purchases' },
+  { text: 'Supplier Management', path: '/suppliers' },
+  { text: 'Customer Management', path: '/customers' },
+  { text: 'Employee Management', path: '/employees' },
+  { text: 'Report Analysis', path: '/reports' },
 ];
+
+export default function Sidebar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  return (
+    <Drawer variant="permanent" sx={{ width: 240, flexShrink: 0 }}>
+      <List>
+        {menuItems.map((item) => (
+          <ListItem
+            button
+            key={item.text}
+            selected={location.pathname === item.path}
+            onClick={() => navigate(item.path)}
+          >
+            <ListItemText primary={item.text} />
+          </ListItem>
+        ))}
+      </List>
+    </Drawer>
+  );
+}

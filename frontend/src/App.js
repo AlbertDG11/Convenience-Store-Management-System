@@ -20,14 +20,14 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 公开区：登录 & 注册 */}
+        {/* Public routes: Login & Register */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* 私有区：用户已登录才能访问 */}
+        {/* Private routes: accessible only when authenticated */}
         <Route element={<ProtectedRoute />}>
           <Route element={<ProtectedLayout />}>
-            {/* 在 ProtectedLayout 的 <Outlet /> 里渲染下面这些 */}
+            {/* Render these routes inside ProtectedLayout's <Outlet /> */}
             <Route index element={<Dashboard />} />
             <Route path="orders" element={<OrderList />} />
             <Route path="products" element={<ProductList />} />
@@ -39,12 +39,9 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* 其余所有地址重定向到 / */}
+        {/* Redirect any unknown paths to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
 }
-
-
-

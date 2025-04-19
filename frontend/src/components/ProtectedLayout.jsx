@@ -15,7 +15,7 @@ export default function ProtectedLayout() {
           padding: 16,
           overflow: 'auto'
         }}>
-          {/* 这里会被 Outlet 渲染：Dashboard、OrderList、CustomerList … */}
+          {/* Rendered by Outlet: Dashboard, OrderList, CustomerList, etc. */}
           <Outlet />
         </div>
       </div>

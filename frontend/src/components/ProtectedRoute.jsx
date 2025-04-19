@@ -1,10 +1,11 @@
+// src/components/ProtectedRoute.jsx
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 export default function ProtectedRoute() {
-  // 从 localStorage 或 Context 读取登录状态
+  // Retrieve authentication token from localStorage
   const token = localStorage.getItem('token');
 
-  // 有 token 则渲染子路由，否则跳转 /login
+  // If token exists, render nested routes; otherwise redirect to /login
   return token ? <Outlet /> : <Navigate to="/login" replace />;
 }

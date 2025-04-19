@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Header() {
   const navigate = useNavigate();
 
-  // 登出：移除 token 并跳转登录页
+  // Logout: remove token and navigate to the login page
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
@@ -14,13 +14,13 @@ export default function Header() {
   return (
     <AppBar position="static">
       <Toolbar>
-        {/* 左侧标题 */}
+        {/* Left-side title */}
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          便利店管理系统
+          Convenience Store Management System
         </Typography>
-        {/* 右侧登出按钮 */}
+        {/* Right-side logout button */}
         <Button color="inherit" onClick={handleLogout}>
-          登出
+          Logout
         </Button>
       </Toolbar>
     </AppBar>
