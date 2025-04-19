@@ -21,4 +21,4 @@ frontend/dist/
 .DS_Store
 Thumbs.db
 
-example.txt
+/backend/employee/migrations/0001_initial.py
