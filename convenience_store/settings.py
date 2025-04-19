@@ -96,15 +96,11 @@ WSGI_APPLICATION = 'convenience_store.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cv',
-        'USER': 'root',
-        'PASSWORD': 'mysql471',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'charset': 'utf8mb4',
-        },
+        'NAME': 'conveniencestoredb',
+        'USER': 'Fei',
+        'PASSWORD': '0323',
+        'HOST':'localhost',
+        'PORT':'3306',
     }
 }
 
