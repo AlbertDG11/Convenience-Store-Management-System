@@ -170,12 +170,12 @@ class EmployeeDetailView(APIView):
             except Employee.DoesNotExist:
                 return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
             
-            employee.name=valid_data['name'],
-            employee.email=valid_data['email'],
-            employee.phone_number=valid_data['phone_number'],
-            employee.salary=valid_data.get('salary'),
-            if valid_data.get('login_password')
-                employee.login_password=valid_data.get('login_password'),
+            employee.name=valid_data['name']
+            employee.email=valid_data['email']
+            employee.phone_number=valid_data['phone_number']
+            employee.salary=valid_data.get('salary')
+            if valid_data.get('login_password'):
+                employee.login_password=valid_data.get('login_password')
             employee.role=valid_data.get('role')
             supervisor = valid_data.get('supervisor')
             if supervisor:
@@ -187,6 +187,36 @@ class EmployeeDetailView(APIView):
                     exists_warning = True
                     warning = "The supervisor is not a manager"
             employee.save()
+
+            updated_addresses = valid_data.get("addresses", [])
+            existing_addresses = EmployeeAddress.objects.filter(employee=employee)
+
+            updated_addresses_ids = set()
+            for address in updated_addresses:
+                address_id = address.get("id")
+                if address_id is not None:
+                    updated_addresses_ids.add(address_id)
+            
+            for address in updated_addresses:
+                address_id = address.get("id")
+                if address_id:
+                    old_address = EmployeeAddress.objects.get(id=address_id)
+                    old_address.province = address["province"]
+                    old_address.city = address["city"]
+                    old_address.street_address = address["street_address"]
+                    old_address.post_code = address["post_code"]
+                    old_address.save()
+                else:
+                    EmployeeAddress.objects.create(
+                        employee=employee,
+                        province=address["province"],
+                        city=address["city"],
+                        street_address=address["street_address"],
+                        post_code=address["post_code"],
+                    )
+            for address in existing_addresses:
+                if address.id not in updated_addresses_ids:
+                    address.delete()
             
             if valid_data['role'] == 0:
                 salesperson = Salesperson.objects.get(employee=employee)

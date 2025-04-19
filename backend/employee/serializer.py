@@ -2,25 +2,21 @@ from rest_framework import serializers
 from .models import *
 
 
-# # Serialiser for Employee model
-# class EmployeeSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Employee
-#         fields = ['employee_id', 'name', 'email', 'phone_number', 
-#                   'salary', 'login_password']
-
-
-# Serialiser for Employee Address model
-class EmployeeAddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EmployeeAddress
-        fields = ['id', 'province', 'city', 'street_address', 'post_code']
+# Serialiser for Employee Address
+class EmployeeAddressSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False, allow_null=True)
+    employee_id = serializers.IntegerField(required=False, allow_null=True)
+    province = serializers.CharField(required=False, allow_null=True)
+    city = serializers.CharField(required=False, allow_null=True)
+    street_address = serializers.CharField(required=False, allow_null=True)
+    post_code = serializers.CharField(required=False, allow_null=True)
 
 
 class ManagementRelationSerializer(serializers.Serializer):
     employee_id = serializers.IntegerField(required=False, allow_null=True)
     name = serializers.CharField(required=False, allow_null=True)
     role = serializers.IntegerField(required=False, allow_null=True)
+
 
 # Serialiser for Whole Employee model
 class WholeEmployeeSerializer(serializers.Serializer):
@@ -38,50 +34,3 @@ class WholeEmployeeSerializer(serializers.Serializer):
     management_level = serializers.CharField(required=False, allow_null=True)
     #management = serializers.ListField(child = serializers.IntegerField(), required=False, allow_null=True)
     management = ManagementRelationSerializer(many=True, required=False, allow_null=True)
-
-
-# # Serialiser for Salesperson model
-# class SalespersonSerializer(serializers.ModelSerializer):
-#     employee = EmployeeSerializer()
-
-#     class Meta:
-#         model = Salesperson
-#         fields = ['employee', 'sales_target']
-
-
-# # Serialiser for Purchase Person model
-# class PurchasePersonSerializer(serializers.ModelSerializer):
-#     employee = EmployeeSerializer()
-
-#     class Meta:
-#         model = PurchasePerson
-#         fields = ['employee', 'purchase_section']
-
-
-# # Serialiser for Manager model
-# class ManagerSerializer(serializers.ModelSerializer):
-#     employee = EmployeeSerializer()
-
-#     class Meta:
-#         model = Manager
-#         fields = ['employee', 'management_level']
-
-
-# # Serialiser for Salesperson Manager Management model
-# class SalespersonManagerManagementSerializer(serializers.ModelSerializer):
-#     salesperson = SalespersonSerializer()
-#     manager = ManagerSerializer()
-
-#     class Meta:
-#         model = SalespersonManagerManagement
-#         fields = ['salesperson', 'manager']
-
-
-# # Serialiser for Purchaseperson Manager Management model
-# class PurchasepersonManagerManagementSerializer(serializers.ModelSerializer):
-#     purchaseperson = PurchasePersonSerializer()
-#     manager = ManagerSerializer()
-
-#     class Meta:
-#         model = PurchasepersonManagerManagement
-#         fields = ['purchaseperson', 'manager']
