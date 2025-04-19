@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from backend.employee.permissions import IsSalesPersonOrManager
-from backend.order.models import Order
+from backend.order.models import Orders
 from backend.order.serializers import OrderSerializer
 
 # Create your views here.
@@ -16,7 +16,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     ViewSet for Order Model
     """
 
-    queryset = Order.objects.all()
+    queryset = Orders.objects.all()
     serializer_class = OrderSerializer
 
     permission_classes = [IsAuthenticated, IsSalesPersonOrManager]
