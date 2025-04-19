@@ -12,11 +12,9 @@ from .models import *
 
 # Serialiser for Employee Address model
 class EmployeeAddressSerializer(serializers.ModelSerializer):
-    employee_id = serializers.PrimaryKeyRelatedField(read_only=True)
-
     class Meta:
         model = EmployeeAddress
-        fields = ['employee_id', 'province', 'city', 'street_address', 'post_code']
+        fields = ['id', 'province', 'city', 'street_address', 'post_code']
 
 
 class ManagementRelationSerializer(serializers.Serializer):
@@ -34,6 +32,7 @@ class WholeEmployeeSerializer(serializers.Serializer):
     login_password = serializers.CharField(required=False, allow_null=True)
     addresses = EmployeeAddressSerializer(many=True, required=False, allow_null=True)
     role = serializers.IntegerField(required=False, allow_null=True)
+    supervisor = serializers.IntegerField(required=False, allow_null=True)
     sales_target = serializers.FloatField(required=False, allow_null=True)
     purchase_section = serializers.CharField(required=False, allow_null=True)
     management_level = serializers.CharField(required=False, allow_null=True)
