@@ -53,7 +53,6 @@ class Inventory(models.Model):
     location = models.CharField(max_length=255)
     quantity = models.IntegerField(null=False, default=1)
     status = models.CharField(max_length=100, default='')
-    inventory_id = models.AutoField()
     
     class Meta:
         db_table = 'inventory'

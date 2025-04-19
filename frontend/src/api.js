@@ -53,3 +53,10 @@ export function fetchReports(params) { return api.get('report/reports/', { param
 // 例如按日期、模块维度查询
 
 // 根据需要继续添加其它接口
+
+
+// order 模块：删除订单
+export function deleteOrder(id) {
+  return api.delete(`order/orders/${id}/`);
+}
+

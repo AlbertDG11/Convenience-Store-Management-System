@@ -24,6 +24,6 @@ class Supplieraddress(models.Model):
     post_code = models.CharField(max_length=7)
 
     class Meta:
-        unique_together = ('employee', 'province', 'city', 'street_address', 'post_code')
+        unique_together = ('province', 'city', 'street_address', 'post_code')
         db_table = 'supplier_address'
         managed = False
