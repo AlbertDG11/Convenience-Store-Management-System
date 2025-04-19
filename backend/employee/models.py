@@ -35,7 +35,7 @@ class Employee(models.Model):
 class EmployeeAddress(models.Model):
     id = models.AutoField(primary_key=True)
     employee = models.ForeignKey(
-        Employee, on_delete=models.CASCADE, db_column='Employee_id'
+        Employee, on_delete=models.CASCADE, db_column='Employee_id', null=True
     )
     province = models.CharField(max_length=20)
     city = models.CharField(max_length=20)
