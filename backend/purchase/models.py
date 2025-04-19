@@ -8,36 +8,30 @@ from backend.supplier.models import Supplier
 # Create your models here.
 
 class InventoryPurchase(models.Model):
-    """
-    Model representing an inventory purchase made from a supplier.
-    """
-    supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True)
-    purchase_time = models.DateTimeField(auto_now_add=True)
-    total_cost = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[MinValueValidator(0)]
+    purchase_id = models.AutoField(primary_key=True)
+    purchase_time = models.DateTimeField()
+    total_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    supplier = models.ForeignKey(
+        Supplier, on_delete=models.SET_NULL, null=True, blank=True, db_column='Supplier_id'
     )
 
-    def __str__(self):
-        supplier_name = self.supplier.name
-        return f"{supplier_name} x {self.purchase_time}"
-
     class Meta:
-        # Orders the inventory purchases by purchase time in descending order.
-        ordering = ['-purchase_time']
+        db_table = 'inventory_purchase'
 
 
 class PurchaseItem(models.Model):
-    """
-    Model representing an item in an inventory purchase.
-    """
-    product = models.ForeignKey(Product, on_delete=models.RESTRICT, null=False, related_name="purchase_items")
-    purchase = models.ForeignKey(InventoryPurchase, on_delete=models.RESTRICT, null=False, related_name="items")
-    quantity_purchased = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    id = models.AutoField(primary_key=True)
+    purchase = models.ForeignKey(
+        InventoryPurchase, on_delete=models.CASCADE, db_column='Purchase_id'
+    )
+    item_id = models.IntegerField()
+    product = models.ForeignKey(
+        Product, on_delete=models.RESTRICT, null=True, blank=True, db_column='Product_id'
+    )
+    quantity_purchased = models.IntegerField()
 
-    def __str__(self):
-        product_name = self.product.name
-        return f"{product_name} x {self.quantity_purchased}"
-
-
+    class Meta:
+        db_table = 'purchase_item'
+        unique_together = (
+            ('purchase', 'item_id'),
+        )

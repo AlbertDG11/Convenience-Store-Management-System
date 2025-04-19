@@ -152,7 +152,7 @@ class EmployeeView(APIView):
                     employee_id=valid_data['employee_id'],
                     management_level=valid_data.get('management_level')
                 )
-
+                
             
             return Response(status=status.HTTP_200_OK)
         else:
