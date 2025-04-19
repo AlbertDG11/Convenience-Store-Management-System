@@ -22,6 +22,8 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/employee/', include('backend.employee.urls')),
+    path('api/supplier/', include('backend.supplier.urls')),
+    path('api/product/', include('backend.product.urls')),
     #re_path(r'^(?!api/).*$', ReactAppView.as_view(), name='react-app'),
     #path('', TemplateView.as_view(template_name='index.html'), name='home'),
 ]

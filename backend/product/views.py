@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from .models import Product
-from .serializer import ProductSerializer
+from .models import Product, FoodProduct, NonFoodProduct, Inventory
+from .serializer import ProductSerializer, FoodProductSerializer, NonFoodProductSerializer, InventorySerializer
 
 class ProductViewSet(viewsets.ViewSet):
 
@@ -44,3 +44,17 @@ class ProductViewSet(viewsets.ViewSet):
         product = get_object_or_404(Product, pk=pk)
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class FoodProductViewSet(viewsets.ModelViewSet):
+    queryset = FoodProduct.objects.all()
+    serializer_class = FoodProductSerializer
+
+
+class NonFoodProductViewSet(viewsets.ModelViewSet):
+    queryset = NonFoodProduct.objects.all()
+    serializer_class = NonFoodProductSerializer
+    
+class InventoryViewSet(viewsets.ModelViewSet):
+    queryset = Inventory.objects.all()
+    serializer_class = InventorySerializer
+    
