@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, Stack, Dialog,
-  DialogTitle, DialogContent, DialogActions, TextField, Grid} from '@mui/material';
+  DialogTitle, DialogContent, DialogActions, TextField, Grid } from '@mui/material';
 
 
 function getRole(roleCode) {
@@ -188,7 +188,7 @@ function Employee(props) {
     
     useEffect(() => {
         //fetch('/api/employee/list/')
-        fetch('http://localhost:8000/api/employee/list/')
+        fetch('http://localhost:8000/employee/')
         .then((response) => {
         console.log("After aksing")
         console.log("After aksing2")

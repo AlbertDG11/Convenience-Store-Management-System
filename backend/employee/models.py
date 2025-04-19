@@ -10,6 +10,7 @@ class Employee(models.Model):
     salary = models.FloatField(null=True, blank=True)
     login_password = models.CharField(max_length=255, null=True, blank=True)
 
+
     class Meta:
         db_table = 'employee'
         managed = False

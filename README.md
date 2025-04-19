@@ -1,42 +1,43 @@
 # Convenience Store Management System
 ## Initialise Project
 #### Backend (Django)
-Create the virtual environment:
+Create Virtual Environment:
 ```bash
 python -m venv venv
 ```
 
-Activate the virtual environment(Windows CMD) (Optional):
+Activate Virtual Environment(Windows CMD) (Optional):
 ```bash
 venv\Scripts\activate
 ```
 
-Activate the virtual environment(Windows PowerShell) (Optional):
+Activate Virtual Environment(Windows PowerShell) (Optional):
 ```bash
 venv\Scripts\Activate.ps1
 ```
 
-Activate the virtual environment(Mac/Linux) (Optional):
+Activate Virtual Environment(Mac/Linux) (Optional):
 ```bash
 source venv/bin/activate
 ```
 
-Install dependency:
+Install Dependency:
 ```bash
 pip install -r requirements.txt
 ```
 
-Migrate database:
+Migrate Database:
 ```bash
 python manage.py migrate
 ```
 
 #### Frontend (React)
-Move to frontend directory and install dependency:
+Move to Frontend Directory and Install Dependency:
 ```bash
 cd frontend
 npm install
 npm install react-router-dom
+npm install @mui/material @emotion/react @emotion/styled
 ```
 <br>
 
