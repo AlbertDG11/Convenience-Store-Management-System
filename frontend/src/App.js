@@ -1,36 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
-import {BrowserRouter, Route, Routes} from "react-router-dom"
-import { Login, Employee } from './pages';
-import Supplier from './pages/supplier'; 
+// src/App.js
+// High‑level routing configuration.  All pages behind authentication are
+// wrapped by <ProtectedRoute> (auth guard) and <ProtectedLayout> (header +
+// sidebar + <Outlet/>).
+// ────────────────────────────────────────────────────────────
 
-function App() {
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+
+// Layout & guard
+import ProtectedRoute from './layouts/ProtectedRoute';
+import ProtectedLayout from './layouts/ProtectedLayout';
+
+// Feature pages – start minimal with the Customer module
+import CustomerList from './pages/customers/CustomerList';
+import CustomerForm from './pages/customers/CustomerForm';
+
+export default function App() {
   return (
-    // <div className="App" asfasf>
-    //   <header className="App-header">
-    //     <img src={logo} className="App-logo" alt="logo" />
-    //     <p>
-    //       Edit <code>src/App.js</code> and save to reload.
-    //     </p>
-    //     <a
-    //       className="App-link"
-    //       href="https://reactjs.org"
-    //       target="_blank"
-    //       rel="noopener noreferrer"
-    //     >
-    //       Learn React
-    //     </a>
-    //   </header>
-    // </div>np
-    <BrowserRouter>
-      <Routes>
-        <Route path='/' element={<h1>Home</h1>}/>
-        <Route path='/login' element={<Login />}/>
-        <Route path='/employee' element={<Employee/>}/>
-        <Route path='/supplier' element={<Supplier />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      {/* Redirect bare domain → /customers */}
+      <Route path="/" element={<Navigate to="/customers" replace />} />
+
+      {/* Protected area */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<ProtectedLayout />}>
+          {/* Customer management */}
+          <Route path="/customers"            element={<CustomerList />} />
+          <Route path="/customers/new"        element={<CustomerForm />} />
+          <Route path="/customers/:id/edit"   element={<CustomerForm />} />
+
+          {/* TODO: future pages
+          <Route path="/orders"    element={<OrderList />} />
+          … etc. */}
+        </Route>
+      </Route>
+
+      {/* Catch‑all → customers */}
+      <Route path="*" element={<Navigate to="/customers" replace />} />
+    </Routes>
   );
 }
-
-export default App;
