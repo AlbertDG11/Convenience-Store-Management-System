@@ -14,9 +14,10 @@ import ProtectedLayout from './layouts/ProtectedLayout';
 // Feature pages – start minimal with the Customer module
 import CustomerList from './pages/customers/CustomerList';
 import CustomerForm from './pages/customers/CustomerForm';
-import { Login, Employee, SalesReportDashboard } from './pages';
+import { Login, Employee, SalesReportDashboard, } from './pages';
 import Supplier from './pages/supplier'; 
 import Product from './pages/product';
+import PurchaseReportDashboard from './pages/purchase_report';
 
 export default function App() {
   return (
@@ -41,6 +42,7 @@ export default function App() {
           <Route path='/supplier' element={<Supplier />} />
           <Route path='/product'  element={<Product/>} />
           <Route path='/report/sales' element={<SalesReportDashboard/>}/>
+          <Route path="/report/purchase" element={<PurchaseReportDashboard />} />
           
         </Route>
       </Route>

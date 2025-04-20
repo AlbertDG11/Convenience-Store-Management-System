@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 #from .models import Report
 #from .serializer import ReportSerializer
 from ..order.models import *
+from ..purchase.models import *
 
 class ReportViewSet(ViewSet):
     """
@@ -109,3 +110,58 @@ class SalesDailyView(APIView):
                     current_day += timedelta(days=1)
 
             return Response(daily_data)
+        
+class PurchaseDailyView(APIView):
+    """
+    GET /report/purchase/?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&type=daily
+    Returns list of { date, total_cost, purchase_count } for each day.
+    """
+    def get(self, request):
+        start_date_str = request.GET.get('start_date')
+        end_date_str   = request.GET.get('end_date')
+        report_type    = request.GET.get('type')
+
+        # parse & validate dates
+        try:
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+            end_date   = datetime.strptime(end_date_str,   "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid or missing date"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if report_type != "daily":
+            return Response({"error": "Unsupported report type"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # filter purchases in range
+        qs = InventoryPurchase.objects.filter(
+            purchase_time__date__gte=start_date,
+            purchase_time__date__lte=end_date
+        )
+
+        # aggregate per day
+        raw = (
+            qs
+            .annotate(date=TruncDate('purchase_time'))
+            .values('date')
+            .annotate(
+                total_cost=Sum('total_cost'),
+                purchase_count=Count('purchase_id')
+            )
+            .order_by('date')
+        )
+
+        # map for quick lookup
+        data_map = { entry['date']: entry for entry in raw }
+
+        # build full list with zero‐fills
+        current = start_date
+        daily_data = []
+        while current <= end_date:
+            entry = data_map.get(current, {'total_cost': 0, 'purchase_count': 0})
+            daily_data.append({
+                "date": current,
+                "total_cost": float(entry['total_cost'] or 0),
+                "purchase_count": entry['purchase_count']
+            })
+            current += timedelta(days=1)
+
+        return Response(daily_data)
