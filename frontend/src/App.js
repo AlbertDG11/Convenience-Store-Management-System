@@ -17,6 +17,8 @@ import CustomerForm from './pages/customers/CustomerForm';
 import { Login, Employee, EmployeeContact, SalesReportDashboard, Profile, Subordinate } from './pages';
 import Supplier from './pages/supplier'; 
 import Product from './pages/product';
+import PurchaseReportDashboard from './pages/purchase_report';
+import Inventory from './pages/inventory';
 
 export default function App() {
   return (
@@ -40,6 +42,8 @@ export default function App() {
           <Route path='/employee' element={<Employee/>}/>
           <Route path='/contact' element={<EmployeeContact/>}/>
           <Route path='/report/sales' element={<SalesReportDashboard/>}/>
+          <Route path="/report/purchase" element={<PurchaseReportDashboard />} />
+          <Route path='/inventory'  element={<Inventory/>} />
           <Route path='/profile' element={<Profile/>}/>
           <Route path='/subordinate' element={<Subordinate/>}/>
         </Route>
