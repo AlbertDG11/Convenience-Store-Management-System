@@ -14,7 +14,7 @@ import ProtectedLayout from './layouts/ProtectedLayout';
 // Feature pages – start minimal with the Customer module
 import CustomerList from './pages/customers/CustomerList';
 import CustomerForm from './pages/customers/CustomerForm';
-import { Login, Employee, SalesReportDashboard } from './pages';
+import { Login, Employee, EmployeeContact, SalesReportDashboard } from './pages';
 
 export default function App() {
   return (
@@ -36,6 +36,7 @@ export default function App() {
           <Route path='/' element={<h1>Home</h1>}/>
           <Route path='/login' element={<Login />}/>
           <Route path='/employee' element={<Employee/>}/>
+          <Route path='/contact' element={<EmployeeContact/>}/>
           <Route path='/report/sales' element={<SalesReportDashboard/>}/>
           
         </Route>

@@ -1,5 +1,6 @@
 import Login from './login';
 import Employee from './employee';
-import SalesReportDashboard from './sales_report'
+import EmployeeContact from './employee_contact';
+import SalesReportDashboard from './sales_report';
 
-export { Login, Employee, SalesReportDashboard };
+export { Login, Employee, EmployeeContact, SalesReportDashboard };
