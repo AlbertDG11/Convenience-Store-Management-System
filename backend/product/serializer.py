@@ -9,28 +9,39 @@ class ProductSerializer(serializers.ModelSerializer):
 class FoodProductSerializer(serializers.ModelSerializer):
     product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
 
-    def create(self, validated_data):
-        return FoodProduct.objects.create(**validated_data)
+#   def create(self, validated_data):
+#       return FoodProduct.objects.create(**validated_data)
 
     class Meta:
         model = FoodProduct
-        fields = ['product', 'foodtype', 'storage_cond', 'expiration']
+        # <-- these must exactly match your model field names:
+        fields = [
+            'product',
+            'food_type',
+            'storage_condition',
+            'expiration_date',
+        ]
+
         
 class NonFoodProductSerializer(serializers.ModelSerializer):
     product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
 
-    def create(self, validated_data):
-        return NonFoodProduct.objects.create(**validated_data)
+#    def create(self, validated_data):
+#        return NonFoodProduct.objects.create(**validated_data)
     
     class Meta:
         model = NonFoodProduct
-        fields = ['product', 'warranty_period', 'brand']
+        fields = [
+            'product',
+            'brand',
+            'warranty_period',
+        ]
         
 class InventorySerializer(serializers.ModelSerializer):
     product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
 
-    def create(self, validated_data):
-        return Inventory.objects.create(**validated_data)
+#    def create(self, validated_data):
+#        return Inventory.objects.create(**validated_data)
     
     class Meta:
         model = Inventory

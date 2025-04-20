@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('customer', '0001_initial'),
-        ('employee', '0001_initial'),
         ('product', '0001_initial'),
     ]
 
