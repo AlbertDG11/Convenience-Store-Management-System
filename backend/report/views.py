@@ -2,69 +2,86 @@ from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import ViewSet
+#from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
-from django.db.models.functions import TruncDate
+from django.db.models.functions import TruncDate, TruncWeek, TruncMonth
 from django.db.models import Sum, Count
 from datetime import datetime, timedelta
-
-
-#from .models import Report
-#from .serializer import ReportSerializer
+from calendar import monthrange
 from ..order.models import *
 from ..purchase.models import *
 
-class ReportViewSet(ViewSet):
-    """
-    ViewSet for Reports
-    """
-    permission_classes = [IsAuthenticated]
+# class ReportViewSet(ViewSet):
+#     """
+#     ViewSet for Reports
+#     """
+#     permission_classes = [IsAuthenticated]
 
-    def list(self, request):
-        report_type = request.query_params.get('type')
+#     def list(self, request):
+#         report_type = request.query_params.get('type')
 
-        if not report_type:
-            return Response({"detail": "Missing 'type' query parameter."}, status=status.HTTP_400_BAD_REQUEST)
+#         if not report_type:
+#             return Response({"detail": "Missing 'type' query parameter."}, status=status.HTTP_400_BAD_REQUEST)
 
-        """
-        Check needed report type
-        """
-        if report_type == "daily":
-            return self.get_daily_report()
-        elif report_type == "monthly":
-            return self.get_monthly_report()
-        elif report_type == "employee":
-            return self.get_employee_performance_report()
-        elif report_type == "inventory":
-            return self.get_inventory_status_report()
-        elif report_type == "sales":
-            return self.get_sales_report()
-        else:
-            return Response({"detail": f"Unknown report type: {report_type}"}, status=status.HTTP_400_BAD_REQUEST)
+#         """
+#         Check needed report type
+#         """
+#         if report_type == "daily":
+#             return self.get_daily_report()
+#         elif report_type == "monthly":
+#             return self.get_monthly_report()
+#         elif report_type == "employee":
+#             return self.get_employee_performance_report()
+#         elif report_type == "inventory":
+#             return self.get_inventory_status_report()
+#         elif report_type == "sales":
+#             return self.get_sales_report()
+#         else:
+#             return Response({"detail": f"Unknown report type: {report_type}"}, status=status.HTTP_400_BAD_REQUEST)
 
-        """
-        Calculate needed data
-        """
+#         """
+#         Calculate needed data
+#         """
 
-    def get_daily_report(self):
-        #TODO
-        pass
+#     def get_daily_report(self):
+#         #TODO
+#         pass
 
-    def get_monthly_report(self):
-        #TODO
-        pass
+#     def get_monthly_report(self):
+#         #TODO
+#         pass
 
-    def get_employee_performance_report(self):
-        #TODO
-        pass
+#     def get_employee_performance_report(self):
+#         #TODO
+#         pass
 
-    def get_inventory_status_report(self):
-        pass
+#     def get_inventory_status_report(self):
+#         pass
     
-    def get_sales_report(self):
-        pass
+#     def get_sales_report(self):
+#         pass
 
-class SalesDailyView(APIView):
+
+def get_monday(date):
+    return date - timedelta(days=date.weekday())
+
+def get_sunday(date):
+    return date + timedelta(days=(6 - date.weekday()))
+
+def get_first_day_of_month(date):
+    return date.replace(day=1)
+
+def get_last_day_of_month(date):
+    last_day = monthrange(date.year, date.month)[1]
+    return date.replace(day=last_day)
+
+def add_month(date):
+    if date.month == 12:
+        return date.replace(year=date.year + 1, month=1)
+    else:
+        return date.replace(month=date.month + 1)
+
+class SalesReportView(APIView):
     def get(self, request):
         start_date_str = request.GET.get('start_date')
         end_date_str = request.GET.get('end_date')
@@ -75,6 +92,7 @@ class SalesDailyView(APIView):
         except ValueError:
             return Response({"error": "Invalid date format"}, status=400)
         orders = Orders.objects.filter(create_time__gte=start_date, create_time__lte=end_date)
+        
         if report_type == "daily":
             raw_daily_data = (
                 orders
@@ -90,7 +108,7 @@ class SalesDailyView(APIView):
 
             for entry in raw_daily_data:
                 date = entry['date']
-                total_amount = float(entry['total_amount'])  # 确保金额是浮点数
+                total_amount = float(entry['total_amount'])
                 order_count = entry['order_count']
 
                 raw_daily_data_dict[date] = {
@@ -109,7 +127,86 @@ class SalesDailyView(APIView):
                     })
                     current_day += timedelta(days=1)
 
-            return Response(daily_data)
+            return Response(daily_data, status=status.HTTP_200_OK)
+        
+        elif report_type == "weekly":
+            extended_start = get_monday(start_date)
+            extended_end = get_sunday(end_date)
+
+            orders = Orders.objects.filter(create_time__gte=extended_start, create_time__lte=extended_end)
+
+            raw_weekly_data = (
+                orders
+                .annotate(week=TruncWeek('create_time'))
+                .values('week')
+                .annotate(
+                    total_amount=Sum('total_price'),
+                    order_count=Count('order_id'))
+                .order_by('week')
+            )
+
+            raw_weekly_data_dict = {}
+            for entry in raw_weekly_data:
+                week_start = entry['week'].date()
+                raw_weekly_data_dict[week_start] = {
+                    "total_amount": float(entry['total_amount']),
+                    "order_count": entry['order_count']
+                }
+
+            current_week = extended_start
+            weekly_data = []
+            while current_week <= extended_end:
+                data = raw_weekly_data_dict.get(current_week, {"total_amount": 0.0, "order_count": 0})
+                weekly_data.append({
+                    "date": current_week,
+                    "total_amount": data["total_amount"],
+                    "order_count": data["order_count"]
+                })
+                current_week += timedelta(weeks=1)
+
+            return Response(weekly_data, status=status.HTTP_200_OK)
+            
+        elif report_type == "monthly":
+            extended_start = get_first_day_of_month(start_date)
+            extended_end = get_last_day_of_month(end_date)
+
+            orders = Orders.objects.filter(create_time__gte=extended_start, create_time__lte=extended_end)
+
+            raw_monthly_data = (
+                orders
+                .annotate(month=TruncMonth('create_time'))
+                .values('month')
+                .annotate(
+                    total_amount=Sum('total_price'),
+                    order_count=Count('order_id'))
+                .order_by('month')
+            )
+
+            raw_monthly_data_dict = {}
+            for entry in raw_monthly_data:
+                month_start = entry['month'].date()
+                raw_monthly_data_dict[month_start] = {
+                    "total_amount": float(entry['total_amount']),
+                    "order_count": entry['order_count']
+                }
+
+            current_month = extended_start
+            monthly_data = []
+            while current_month <= extended_end:
+                data = raw_monthly_data_dict.get(current_month, {"total_amount": 0.0, "order_count": 0})
+                monthly_data.append({
+                    "date": current_month,
+                    "total_amount": data["total_amount"],
+                    "order_count": data["order_count"]
+                })
+                current_month = add_month(current_month)
+
+            return Response(monthly_data, status=status.HTTP_200_OK)
+
+        else:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+
         
 class PurchaseDailyView(APIView):
     """
