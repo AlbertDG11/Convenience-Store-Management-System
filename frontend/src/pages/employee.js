@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, Stack, Dialog,
   DialogTitle, DialogContent, DialogActions, TextField, Grid,
@@ -114,8 +114,36 @@ function AddEmployeeDialog({ open, onClose, onSave }) {
               )}
             </Box>
           ))}
-
           <Button onClick={handleAddAddress}>➕ Add Address</Button>
+          {form.role === 0 && (
+            <TextField
+              fullWidth
+              label="Sales Target"
+              value={form.sales_target || ''}
+              onChange={handleChange('sales_target')}
+              sx={{ mt: 2 }}
+            />
+          )}
+
+          {form.role === 1 && (
+            <TextField
+              fullWidth
+              label="Purchase Section"
+              value={form.purchase_section || ''}
+              onChange={handleChange('purchase_section')}
+              sx={{ mt: 2 }}
+            />
+          )}
+
+          {form.role === 2 && (
+            <TextField
+              fullWidth
+              label="Management Level"
+              value={form.management_level || ''}
+              onChange={handleChange('management_level')}
+              sx={{ mt: 2 }}
+            />
+          )}
         </Stack>
       </DialogContent>
       <DialogActions>
@@ -252,6 +280,33 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
   
     setForm({ ...form, [field]: value });
   };
+  
+  const handleAddressChange = (index, field) => (event) => {
+    const newAddresses = [...form.addresses];
+    newAddresses[index] = {
+      ...newAddresses[index],
+      [field]: event.target.value,
+    };
+    setForm({ ...form, addresses: newAddresses });
+  };
+
+  const handleRemoveAddress = (index) => {
+    const newAddresses = [...form.addresses];
+    newAddresses.splice(index, 1);
+    setForm({ ...form, addresses: newAddresses });
+  };
+  
+  const handleAddAddress = () => {
+    const newAddresses = [...(form.addresses || []), {
+      province: '',
+      city: '',
+      street_address: '',
+      post_code: '',
+      employee_id: employeeId,
+    }];
+    setForm({ ...form, addresses: newAddresses });
+  };
+  
 
   const handleSubmit = () => {
     console.log("Submitting form:", form);
@@ -280,31 +335,65 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
         <TextField fullWidth label="Email" value={form.email || ''} onChange={handleChange('email')} sx={{ mt: 2 }} />
         <TextField fullWidth label="Phone" value={form.phone_number || ''} onChange={handleChange('phone_number')} sx={{ mt: 2 }} />
         <TextField fullWidth label="Salary" type="number" value={form.salary || ''} onChange={handleChange('salary')} sx={{ mt: 2 }} />
-        {<Typography><strong>Address:</strong> {formatAddresses(employee.addresses)}</Typography>}
-          <Typography>
-            <strong>Role:</strong>{' '}
-            {getRole(employee.role)}
-          </Typography>
-          {employee.sales_target && (
-            <Typography><strong>Sales Target:</strong> {employee.sales_target}</Typography>
+        <TextField fullWidth label="Supervisor" value={form.supervisor || ''} onChange={handleChange('supervisor')} sx={{ mt: 2 }} />
+        <FormControl fullWidth sx={{ mt: 2 }} >
+          <InputLabel>Role</InputLabel>
+          <Select
+            value={form.role ?? ''}
+            label="Role"
+            onChange={handleChange('role')}
+          >
+            <MenuItem value={0}>Salesperson</MenuItem>
+            <MenuItem value={1}>Purchase</MenuItem>
+            <MenuItem value={2}>Manager</MenuItem>
+          </Select>
+        </FormControl>
+
+        {(form.addresses || []).map((addr, index) => (
+          <Box key={index} sx={{ border: '1px solid #ccc', p: 2, borderRadius: 2, mt: 2 }}>
+            <Typography variant="subtitle2">Address {index + 1}</Typography>
+            <TextField fullWidth label="Province" value={addr.province} onChange={handleAddressChange(index, 'province')} sx={{ mt: 1 }} />
+            <TextField fullWidth label="City" value={addr.city} onChange={handleAddressChange(index, 'city')} sx={{ mt: 1 }} />
+            <TextField fullWidth label="Street Address" value={addr.street_address} onChange={handleAddressChange(index, 'street_address')} sx={{ mt: 1 }} />
+            <TextField fullWidth label="Post Code" value={addr.post_code} onChange={handleAddressChange(index, 'post_code')} sx={{ mt: 1 }} />
+            {(form.addresses || []).length > 1 && (
+              <Button color="error" onClick={() => handleRemoveAddress(index)} sx={{ mt: 1 }}>
+                ➖ Remove This Address
+              </Button>
+            )}
+          </Box>          
+        ))}
+        <Button onClick={handleAddAddress} sx={{ mt: 2 }}>
+          ➕ Add Address
+        </Button>
+        {form.role === 0 && (
+            <TextField
+              fullWidth
+              label="Sales Target"
+              value={form.sales_target || ''}
+              onChange={handleChange('sales_target')}
+              sx={{ mt: 2 }}
+            />
           )}
-          {employee.purchase_section && (
-            <Typography><strong>Purchase Section:</strong> {employee.purchase_section}</Typography>
+
+          {form.role === 1 && (
+            <TextField
+              fullWidth
+              label="Purchase Section"
+              value={form.purchase_section || ''}
+              onChange={handleChange('purchase_section')}
+              sx={{ mt: 2 }}
+            />
           )}
-          {employee.management_level && (
-            <Typography><strong>Management Level:</strong> {employee.management_level}</Typography>
-          )}
-          {employee.management && employee.management.length > 0 && (
-            <Typography>
-              <strong>Supervisor:</strong>
-              {employee.management.map((m, idx) => (
-                <div key={idx}>
-                  ID: {m.employee_id}<br />
-                  Name: {m.name}<br />
-                  {m.role && <>Role: {getRole(m.role)}</>}
-                </div>
-              ))}
-            </Typography>
+
+          {form.role === 2 && (
+            <TextField
+              fullWidth
+              label="Management Level"
+              value={form.management_level || ''}
+              onChange={handleChange('management_level')}
+              sx={{ mt: 2 }}
+            />
           )}
       </DialogContent>)}
       <DialogActions>
@@ -630,4 +719,4 @@ function Employee(props) {
   );
 }
 
-export default Employee
+export default Employee;
