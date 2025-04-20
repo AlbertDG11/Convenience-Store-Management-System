@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Button, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, Stack, Dialog,
-  DialogTitle, DialogContent, DialogActions, TextField, Grid,
+import { Box, Typography, Button, Stack, TextField, 
   Select, MenuItem, InputLabel, FormControl} from '@mui/material';
 
 
@@ -32,11 +30,12 @@ function formatAddresses(addresses) {
   ));
 }
 
-function EmployeeDetail({ employeeId, open, onClose }) {
+function ShowProfile({ employeeId, onEdit }) {
   const [employee, setEmployee] = useState(null);
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState(null);
 
   useEffect(() => {
-    if (open && employeeId) {
       setLoading(true);
       fetch(`http://localhost:8000/employee/${employeeId}/`)
         .then((res) => {
@@ -54,17 +53,16 @@ function EmployeeDetail({ employeeId, open, onClose }) {
         .finally(() => {
           setLoading(false);
         });
-    } else {
-      setEmployee(null); // reset when closed
-    }
-  }, [open, employeeId]);
+  }, [employeeId]);
+
+  if (loading) return <div>Loading…</div>;
+  if (error)   return <div>{error}</div>;
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Employee Details</DialogTitle>
-      <DialogContent dividers>
+    <div>
       {employee && (
         <Stack spacing={2}>
+          <Typography><strong>Id:</strong>{employee.employee_id}</Typography>
           <Typography><strong>Name:</strong> {employee.name}</Typography>
           <Typography><strong>Email:</strong> {employee.email}</Typography>
           <Typography><strong>Phone:</strong> {employee.phone_number}</Typography>
@@ -96,11 +94,190 @@ function EmployeeDetail({ employeeId, open, onClose }) {
             </Typography>
           )}
         </Stack>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-    </Dialog>
+      )}
+      <Button variant="contained" onClick={onEdit}>Edit</Button>
+    </div>
   );
 }
+
+function EditProfile({ employeeId, onSave, onCancel }) {
+  const [form, setForm] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError]   = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`http://localhost:8000/employee/${employeeId}/`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch employee details");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Loaded employee data:", data);
+        setForm(data)
+        setError(null);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Unable to load employee details");
+      })
+      .finally(() => {setLoading(false);});
+  }, [employeeId]);
+
+  const handleChange = (field) => (event) => {
+    let value = event.target.value;
+  
+    if (field === 'salary') {
+      value = parseFloat(value);
+    }
+  
+    setForm({ ...form, [field]: value });
+  };
+  
+  const handleAddressChange = (index, field) => (event) => {
+    const newAddresses = [...form.addresses];
+    newAddresses[index] = {
+      ...newAddresses[index],
+      [field]: event.target.value,
+    };
+    setForm({ ...form, addresses: newAddresses });
+  };
+
+  const handleRemoveAddress = (index) => {
+    const newAddresses = [...form.addresses];
+    newAddresses.splice(index, 1);
+    setForm({ ...form, addresses: newAddresses });
+  };
+  
+  const handleAddAddress = () => {
+    const newAddresses = [...(form.addresses || []), {
+      employee_id: employeeId,
+      province: '',
+      city: '',
+      street_address: '',
+      post_code: ''
+    }];
+    setForm({ ...form, addresses: newAddresses });
+  };
+
+  const handleSubmit = () => {
+    console.log("Submitting form:", form);
+    fetch(`http://localhost:8000/employee/${employeeId}/`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert('Update Successfully');
+      onSave();
+    })
+    .catch(err => {
+      alert('Fail to Update');
+      onSave();
+    });
+  };
+
+  return (
+    <div>
+        <Box>
+        <TextField fullWidth label="Name" value={form.name || ''} onChange={handleChange('name')} sx={{ mt: 2 }} />
+        <TextField fullWidth label="Email" value={form.email || ''} onChange={handleChange('email')} sx={{ mt: 2 }} />
+        <TextField fullWidth label="Phone" value={form.phone_number || ''} onChange={handleChange('phone_number')} sx={{ mt: 2 }} />
+        <TextField fullWidth label="Salary" type="number" value={form.salary || ''} onChange={handleChange('salary')} disabled sx={{ mt: 2 }} />
+        <TextField fullWidth label="Supervisor" value={form.supervisor || ''} onChange={handleChange('supervisor')} disabled sx={{ mt: 2 }} />
+        <FormControl fullWidth sx={{ mt: 2 }} disabled>
+          <InputLabel>Role</InputLabel>
+          <Select
+            value={form.role ?? ''}
+            label="Role"
+            onChange={handleChange('role')}
+          >
+            <MenuItem value={0}>Salesperson</MenuItem>
+            <MenuItem value={1}>Purchase</MenuItem>
+            <MenuItem value={2}>Manager</MenuItem>
+          </Select>
+        </FormControl>
+
+        {(form.addresses || []).map((addr, index) => (
+          <Box key={index} sx={{ border: '1px solid #ccc', p: 2, borderRadius: 2, mt: 2 }}>
+            <Typography variant="subtitle2">Address {index + 1}</Typography>
+            <TextField fullWidth label="Province" value={addr.province} onChange={handleAddressChange(index, 'province')} sx={{ mt: 1 }} />
+            <TextField fullWidth label="City" value={addr.city} onChange={handleAddressChange(index, 'city')} sx={{ mt: 1 }} />
+            <TextField fullWidth label="Street Address" value={addr.street_address} onChange={handleAddressChange(index, 'street_address')} sx={{ mt: 1 }} />
+            <TextField fullWidth label="Post Code" value={addr.post_code} onChange={handleAddressChange(index, 'post_code')} sx={{ mt: 1 }} />
+            {(form.addresses || []).length > 1 && (
+              <Button color="error" onClick={() => handleRemoveAddress(index)} sx={{ mt: 1 }}>
+                ➖ Remove This Address
+              </Button>
+            )}
+          </Box>          
+        ))}
+        <Button onClick={handleAddAddress} sx={{ mt: 2 }}>
+          ➕ Add Address
+        </Button>
+        {form.role === 0 && (
+            <TextField
+              fullWidth
+              label="Sales Target"
+              value={form.sales_target || ''}
+              onChange={handleChange('sales_target')}
+              sx={{ mt: 2 }} disabled
+            />
+          )}
+
+          {form.role === 1 && (
+            <TextField
+              fullWidth
+              label="Purchase Section"
+              value={form.purchase_section || ''}
+              onChange={handleChange('purchase_section')}
+              sx={{ mt: 2 }} disabled
+            />
+          )}
+
+          {form.role === 2 && (
+            <TextField
+              fullWidth
+              label="Management Level"
+              value={form.management_level || ''}
+              onChange={handleChange('management_level')}
+              sx={{ mt: 2 }} disabled
+            />
+          )}
+          </Box>
+          <Button onClick={onCancel} sx={{ mt: 2, mr: 1 }}>
+            Cancel
+          </Button>
+          <Button variant="contained" onClick={handleSubmit} sx={{ mt: 2 }}>
+            Save
+          </Button>
+        </div>
+  );
+}
+
+
+function Profile(props) {
+  const [mode, setMode] = useState('view'); // 'view' | 'edit'
+  const employeeId = 6;
+
+  return (
+    <div>
+      <h2>Profile</h2>
+      {mode === 'view' ? (
+        <ShowProfile
+          employeeId={employeeId} 
+          onEdit={() => setMode('edit')} 
+        />
+      ) : (
+        <EditProfile 
+          employeeId={employeeId} 
+          onSave={() => setMode('view')} 
+          onCancel={() => setMode('view')} 
+        />
+      )}
+    </div>
+  );
+}
+
+export default Profile;

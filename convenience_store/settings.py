@@ -97,8 +97,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'conveniencestoredb',
-        'USER': 'Jiaqi',
-        'PASSWORD': '200505',
+        'USER': 'Fei',
+        'PASSWORD': '0323',
         'HOST':'localhost',
         'PORT':'3306',
     }

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, Stack, Dialog,
-  DialogTitle, DialogContent, DialogActions, TextField, Grid,
-  Select, MenuItem, InputLabel, FormControl} from '@mui/material';
+  DialogTitle, DialogContent, DialogActions, TextField, Grid} from '@mui/material';
 
 
 function getRole(roleCode) {
@@ -67,14 +66,12 @@ function EmployeeDetailDialog({ employeeId, open, onClose }) {
       <DialogContent dividers>
       {employee && (
         <Stack spacing={2}>
+          <Typography><strong>Id:</strong> {employee.employee_id}</Typography>
           <Typography><strong>Name:</strong> {employee.name}</Typography>
           <Typography><strong>Email:</strong> {employee.email}</Typography>
           <Typography><strong>Phone:</strong> {employee.phone_number}</Typography>
           {<Typography><strong>Address:</strong> {formatAddresses(employee.addresses)}</Typography>}
-          <Typography>
-            <strong>Role:</strong>{' '}
-            {getRole(employee.role)}
-          </Typography>
+          <Typography><strong>Role:</strong>{' '}{getRole(employee.role)}</Typography>
           {employee.management_level && (
             <Typography><strong>Management Level:</strong> {employee.management_level}</Typography>
           )}
@@ -144,68 +141,41 @@ function EmployeeContact(props) {
   return (
     <div>
       <Box sx={{
-      minHeight: '100vh',
-      backgroundImage: 'url(https://source.unsplash.com/random/1600x900?business)',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      py: 6}}>
-      <Box
-        sx={{
-        maxWidth: '93%',
-        mx: 'auto',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        borderRadius: 4,
-        p: 4,
-        backdropFilter: 'blur(5px)',
-        }}
-        >
+        minHeight: '100vh',
+        backgroundImage: 'url(https://source.unsplash.com/random/1600x900?business)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        py: 6}}>
+        <Box sx={{ maxWidth: '93%', mx: 'auto', backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          borderRadius: 4, p: 4, backdropFilter: 'blur(5px)'}}>
 
           <Typography variant="h3" sx={{ mt: 2, mb: 4, fontWeight: 'bold' }} gutterBottom align="center">Contact List</Typography>
           
-          <Grid
-          container
-          spacing={2}
-          sx={{ maxWidth: '95%', mx: 'auto', mb: 3 }}
-          >
+          <Grid container spacing={2} sx={{ maxWidth: '95%', mx: 'auto', mb: 3 }}>
             <Grid item xs={12} sm={6} md={2}>
-                <TextField
-                size="small"
-                fullWidth
-                label="Name"
-                value={filters.name}
+              <TextField size="small" fullWidth label="Name" value={filters.name}
                 onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-                />
+              />
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
-                <TextField
-                size="small"
-                fullWidth
-                label="Phone"
-                value={filters.phone}
-                onChange={(e) => setFilters({ ...filters, phone: e.target.value })}
-                />
+              <TextField size="small" fullWidth label="Phone" value={filters.phone}
+              onChange={(e) => setFilters({ ...filters, phone: e.target.value })}
+              />
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
-                <Button
-                fullWidth
-                variant="outlined"
-                onClick={() => setFilterActive(true)}
-                >
+              <Button fullWidth variant="outlined" onClick={() => setFilterActive(true)}>
                 Search
-                </Button>
+              </Button>
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
-                <Button
-                fullWidth
-                color="secondary"
-                variant="outlined"
+              <Button fullWidth color="secondary" variant="outlined"
                 onClick={() => {
                     setFilters({ name: '', phone: ''});
                     setFilterActive(false);
                 }}
-                >
+              >
                 Clear
-                </Button>
+              </Button>
             </Grid>
           </Grid>
 
@@ -213,37 +183,39 @@ function EmployeeContact(props) {
             <Table>
               <TableHead>
                 <TableRow>
-                <TableCell align="center"><strong>Name</strong></TableCell>
-                <TableCell align="center"><strong>Email</strong></TableCell>
-                <TableCell align="center"><strong>Phone</strong></TableCell>
-                <TableCell align="center"><strong>Role</strong></TableCell>
-                <TableCell align="center"><strong>Actions</strong></TableCell>
+                  <TableCell align="center"><strong>Id</strong></TableCell>
+                  <TableCell align="center"><strong>Name</strong></TableCell>
+                  <TableCell align="center"><strong>Email</strong></TableCell>
+                  <TableCell align="center"><strong>Phone</strong></TableCell>
+                  <TableCell align="center"><strong>Role</strong></TableCell>
+                  <TableCell align="center"><strong>Actions</strong></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
               {filteredEmployees.map((emp) => (
                 <TableRow key={emp.employee_id}>
-                <TableCell align="center">{emp.name}</TableCell>
-                <TableCell align="center">{emp.email}</TableCell>
-                <TableCell align="center">{emp.phone_number}</TableCell>
-                <TableCell align="center">{getRole(emp.role)}</TableCell>
-                <TableCell align="center">
-                  <Stack spacing={1} direction="column">
-                  <Button size="small" variant="outlined" onClick={() => setDetailEmployee(emp.employee_id)}>View</Button>
-                  </Stack>
-                </TableCell>
+                  <TableCell align="center">{emp.employee_id}</TableCell>
+                  <TableCell align="center">{emp.name}</TableCell>
+                  <TableCell align="center">{emp.email}</TableCell>
+                  <TableCell align="center">{emp.phone_number}</TableCell>
+                  <TableCell align="center">{getRole(emp.role)}</TableCell>
+                  <TableCell align="center">
+                    <Stack spacing={1} direction="column">
+                      <Button size="small" variant="outlined" onClick={() => setDetailEmployee(emp.employee_id)}>View</Button>
+                    </Stack>
+                  </TableCell>
                 </TableRow>
               ))}
               </TableBody>
             </Table>
           </TableContainer>
-      </Box>
+        </Box>
       </Box>
 
       <EmployeeDetailDialog
-      open={!!detailEmployee}
-      employeeId={detailEmployee}
-      onClose={() => setDetailEmployee(null)}
+        open={!!detailEmployee}
+        employeeId={detailEmployee}
+        onClose={() => setDetailEmployee(null)}
       />
     </div>
   );
