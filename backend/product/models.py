@@ -10,6 +10,10 @@ class Product(models.Model):
 
     class Meta:
         db_table = 'product'
+        
+    @property
+    def id(self):
+        return self.product_id
 
 
 class FoodProduct(models.Model):

@@ -2,8 +2,6 @@ from django.db import models
 
 # Create your models here.
 # Table Employee
-from django.db import models
-
 class Employee(models.Model):
     employee_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)

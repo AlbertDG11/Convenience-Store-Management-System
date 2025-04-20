@@ -22,3 +22,7 @@ frontend/dist/
 Thumbs.db
 
 /backend/employee/migrations/0001_initial.py
+
+example.txt
+
+/convenience_store/settings.py
