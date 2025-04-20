@@ -3,10 +3,15 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ViewSet
+from rest_framework.views import APIView
+from django.db.models.functions import TruncDate
+from django.db.models import Sum, Count
+from datetime import datetime, timedelta
 
 
-from .models import Report
-from .serializer import ReportSerializer
+#from .models import Report
+#from .serializer import ReportSerializer
+from ..order.models import *
 
 class ReportViewSet(ViewSet):
     """
@@ -57,3 +62,50 @@ class ReportViewSet(ViewSet):
     
     def get_sales_report(self):
         pass
+
+class SalesDailyView(APIView):
+    def get(self, request):
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+        report_type = request.GET.get('type')
+        try:
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            return Response({"error": "Invalid date format"}, status=400)
+        orders = Orders.objects.filter(create_time__gte=start_date, create_time__lte=end_date)
+        if report_type == "daily":
+            raw_daily_data = (
+                orders
+                .annotate(date=TruncDate('create_time'))
+                .values('date')
+                .annotate(
+                    total_amount=Sum('total_price'),
+                    order_count=Count('order_id'))
+                .order_by('date')
+            )
+
+            raw_daily_data_dict = {}
+
+            for entry in raw_daily_data:
+                date = entry['date']
+                total_amount = float(entry['total_amount'])  # 确保金额是浮点数
+                order_count = entry['order_count']
+
+                raw_daily_data_dict[date] = {
+                    "total_amount": total_amount,
+                    "order_count": order_count
+                }
+
+                current_day = start_date
+                daily_data = []
+                while current_day <= end_date:
+                    data = raw_daily_data_dict.get(current_day, {"total_amount": 0.0, "order_count": 0})
+                    daily_data.append({
+                        "date": current_day,
+                        "total_amount": float(data["total_amount"]),
+                        "order_count": data["order_count"]
+                    })
+                    current_day += timedelta(days=1)
+
+            return Response(daily_data)

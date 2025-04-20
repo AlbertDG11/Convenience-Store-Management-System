@@ -165,11 +165,13 @@ class EmployeeDetailView(APIView):
         if serialiser.is_valid():
             exists_warning = False
             valid_data = serialiser.validated_data
+            print(valid_data)
             try:
                 employee = Employee.objects.get(employee_id = employee_id)
             except Employee.DoesNotExist:
                 return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
             
+            current_role = employee.role
             employee.name=valid_data['name']
             employee.email=valid_data['email']
             employee.phone_number=valid_data['phone_number']
@@ -189,6 +191,7 @@ class EmployeeDetailView(APIView):
             employee.save()
 
             updated_addresses = valid_data.get("addresses", [])
+            print(updated_addresses)
             existing_addresses = EmployeeAddress.objects.filter(employee=employee)
 
             updated_addresses_ids = set()
@@ -207,17 +210,37 @@ class EmployeeDetailView(APIView):
                     old_address.post_code = address["post_code"]
                     old_address.save()
                 else:
-                    EmployeeAddress.objects.create(
+                    print("hello")
+                    addressn = EmployeeAddress.objects.create(
                         employee=employee,
                         province=address["province"],
                         city=address["city"],
                         street_address=address["street_address"],
                         post_code=address["post_code"],
                     )
+                    updated_addresses_ids.add(addressn.id)
+                    print(addressn.employee_id)
             for address in existing_addresses:
                 if address.id not in updated_addresses_ids:
+                    print(address.id)
                     address.delete()
             
+            if current_role != employee.role:
+                role_map = {
+                    0: Salesperson,
+                    1: PurchasePerson,
+                    2: Manager
+                }
+                old_role = role_map.get(current_role)
+                new_role = role_map.get(employee.role)
+                if old_role:
+                    old_role.objects.filter(employee=employee).delete()
+                if new_role:
+                    new_role.objects.create(
+                        employee=employee
+                    )
+
+            print(EmployeeAddress.objects.filter(employee=employee))
             if valid_data['role'] == 0:
                 salesperson = Salesperson.objects.get(employee=employee)
                 salesperson.sales_target = valid_data.get('sales_target')
@@ -245,12 +268,12 @@ class EmployeeDetailView(APIView):
         try:
             employee = Employee.objects.get(pk=employee_id)
             EmployeeAddress.objects.filter(employee=employee).delete()
+            
             role_map = {
                 0: Salesperson,
                 1: PurchasePerson,
                 2: Manager
             }
-
             role = role_map.get(employee.role)
             if role:
                 role.objects.filter(employee=employee).delete()
@@ -260,24 +283,24 @@ class EmployeeDetailView(APIView):
             return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-class EmployeeAddressView(APIView):
-    def post(self, request):
-        serialiser = EmployeeAddressSerializer(data=request.data)
-        if serialiser.is_valid():
-            EmployeeAddress.objects.create(
-                employee=Employee.objects.get(employee_id=valid_data['employee_id']),
-                province=valid_data['province'],
-                city=valid_data['city'],
-                street_address=valid_data['street_address'],
-                post_code=valid_data['post_code']
-            )
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+# class EmployeeAddressView(APIView):
+#     def post(self, request):
+#         serialiser = EmployeeAddressSerializer(data=request.data)
+#         if serialiser.is_valid():
+#             EmployeeAddress.objects.create(
+#                 employee=Employee.objects.get(employee_id=valid_data['employee_id']),
+#                 province=valid_data['province'],
+#                 city=valid_data['city'],
+#                 street_address=valid_data['street_address'],
+#                 post_code=valid_data['post_code']
+#             )
+#             return Response(status=status.HTTP_200_OK)
+#         else:
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, address_id):
-        try:
-            EmployeeAddress.objects.get(pk=address_id).delete()
-            return Response({"message": "Deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-        except EmployeeAddress.DoesNotExist:
-            return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
+#     def delete(self, request, address_id):
+        # try:
+        #     EmployeeAddress.objects.get(pk=address_id).delete()
+        #     return Response({"message": "Deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        # except EmployeeAddress.DoesNotExist:
+        #     return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
