@@ -64,6 +64,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://localhost:3001",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -112,9 +113,9 @@ WSGI_APPLICATION = 'convenience_store.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'conveniencestoredb',
-        'USER': 'Jiaqi',
-        'PASSWORD': '200505',
+        'NAME': 'cv',
+        'USER': 'root',
+        'PASSWORD': 'mysql471',
         'HOST':'localhost',
         'PORT':'3306',
     }
