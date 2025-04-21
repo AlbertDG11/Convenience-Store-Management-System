@@ -108,6 +108,7 @@ WSGI_APPLICATION = 'convenience_store.wsgi.application'
 #     }
 # }
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
