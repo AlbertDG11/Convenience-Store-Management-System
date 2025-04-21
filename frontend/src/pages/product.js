@@ -199,6 +199,7 @@ function UpdateProductDialog({ product, open, onClose, onSave }) {
             label="ID"
             type="number"
             value={form.product_id}
+            disabled
             onChange={handle('product_id')}
             fullWidth
           />
@@ -398,11 +399,13 @@ export default function Product() {
           </TableBody>
         </Table>
       </TableContainer>
-      <Box sx={{ mt: 2 }}>
-        <Button variant="contained" onClick={() => setAddOpen(true)}>
-          Add {mode==='all'? 'Product': mode==='food'? 'Food':'Non‑Food'}
-        </Button>
-      </Box>
+      {mode === 'all' && (
+        <Box sx={{ mt: 2 }}>
+          <Button variant="contained" onClick={() => setAddOpen(true)}>
+            Add Product
+          </Button>
+        </Box>
+      )}
 
       <AddProductDialog mode={mode} open={addOpen} onClose={() => setAddOpen(false)} onSave={d => setItems(i => [...i, d])} />
       <UpdateProductDialog product={editProduct} open={!!editProduct} onClose={() => setEditProduct(null)} onSave={d => setItems(i => i.map(x => x.product_id===d.product_id? d : x))} />
