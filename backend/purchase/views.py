@@ -3,7 +3,7 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from backend.employee.permissions import IsPurchasePersonOrManager
+
 from backend.product.models import Inventory
 from backend.purchase.models import InventoryPurchase
 from backend.purchase.serializers import InventoryPurchaseSerializer
