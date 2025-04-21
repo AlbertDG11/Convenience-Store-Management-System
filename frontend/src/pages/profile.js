@@ -119,9 +119,9 @@ function EditProfile({ employeeId, onSave, onCancel }) {
     setLoading(true);
     fetch(`http://localhost:8000/employee/${employeeId}/`,
       {method: "GET",
-      headers: { 
-      'Authorization': 'Bearer ' + token,
-      'Content-Type': 'application/json' 
+        headers: { 
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json' 
       }})
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch employee details");
@@ -179,7 +179,10 @@ function EditProfile({ employeeId, onSave, onCancel }) {
     console.log("Submitting form:", form);
     fetch(`http://localhost:8000/employee/${employeeId}/`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+       },
       body: JSON.stringify(form),
     })
     .then(res => res.json())

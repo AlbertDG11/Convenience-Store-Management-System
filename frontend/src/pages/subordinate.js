@@ -55,10 +55,13 @@ function AddEmployeeDialog({ open, onClose, onSave, managerId}) {
       supervisor: managerId,
       addresses: addresses,
     };
-
+    const token = localStorage.getItem('token');
     fetch(`http://localhost:8000/employee/`, {
       method: "POST",
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+       },
       body: JSON.stringify(payload)
     })
     .then(async (res) => {
