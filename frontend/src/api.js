@@ -1,45 +1,38 @@
 // src/api.js
-// Minimal axios wrapper for this project.
-// Only Customer endpoints are implemented now; others can be added in the
-// same style later.
-// ────────────────────────────────────────────────────────────
-
+// Unified Axios wrapper – contains Customer, Order, Purchase endpoints
+// ---------------------------------------------------------------------
 import axios from 'axios';
 
-// Base URL comes from .env ⇒ REACT_APP_API_BASE_URL
-// Fallback to dev server (Django default) if not provided.
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/',
+  baseURL:
+    process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/',
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true, // set to false if you use token‑only auth
+  withCredentials: true, // change to false if you only use token auth
 });
 
-/* -----------------------------------------------------------
-   Auth helpers (optional)
-   ---------------------------------------------------------*/
-export const login = (credentials) => api.post('auth/login/', credentials);
-export const register = (payload)   => api.post('auth/register/', payload);
+/* ---------- Auth (optional) ---------- */
+export const login    = creds   => api.post('auth/login/',    creds);
+export const register = payload => api.post('auth/register/', payload);
 
-/* -----------------------------------------------------------
-   Customer endpoints
-   ---------------------------------------------------------*/
-// export const fetchCustomers    = ()          => api.get('customer/customers/');
-export const fetchCustomers = () =>
-  Promise.resolve({
-    data: [
-      { id: 1, name: 'Demo A', phone_number: '111‑111', email: 'a@test.com' },
-      { id: 2, name: 'Demo B', phone_number: '222‑222', email: 'b@test.com' },
-    ],
-  });
+/* ---------- Customer ---------- */
+export const fetchCustomers     = ()            => api.get('customer/customers/');
+export const fetchCustomerById  = id            => api.get(`customer/customers/${id}/`);
+export const createCustomer     = data          => api.post('customer/customers/', data);
+export const updateCustomer     = (id, data)    => api.put(`customer/customers/${id}/`, data);
+export const deleteCustomer     = id            => api.delete(`customer/customers/${id}/`);
 
-export const fetchCustomerById = (id)        => api.get(`customer/customers/${id}/`);
-export const createCustomer    = (data)      => api.post('customer/customers/', data);
-export const updateCustomer    = (id, data)  => api.put(`customer/customers/${id}/`, data);
-export const deleteCustomer    = (id)        => api.delete(`customer/customers/${id}/`);
+/* ---------- Order ---------- */
+export const fetchOrders        = ()            => api.get('order/orders/');
+export const fetchOrderById     = id            => api.get(`order/orders/${id}/`);
+export const createOrder        = data          => api.post('order/orders/', data);
+export const updateOrder        = (id, data)    => api.put(`order/orders/${id}/`, data);
+export const deleteOrder        = id            => api.delete(`order/orders/${id}/`);
 
-/* -----------------------------------------------------------
-   TODO: add other modules in exactly the same fashion
-   e.g. fetchOrders, createProduct, etc.
-   ---------------------------------------------------------*/
+/* ---------- Purchase ---------- */
+export const fetchPurchases     = ()            => api.get('purchase/purchases/');
+export const fetchPurchaseById  = id            => api.get(`purchase/purchases/${id}/`);
+export const createPurchase     = data          => api.post('purchase/purchases/', data);
+export const updatePurchase     = (id, data)    => api.put(`purchase/purchases/${id}/`, data);
+export const deletePurchase     = id            => api.delete(`purchase/purchases/${id}/`);
 
 export default api;

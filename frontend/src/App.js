@@ -1,41 +1,51 @@
 // src/App.js
-// High‑level routing configuration.  All pages behind authentication are
-// wrapped by <ProtectedRoute> (auth guard) and <ProtectedLayout> (header +
-// sidebar + <Outlet/>).
-// ────────────────────────────────────────────────────────────
-
+// Top‑level routing.  All private pages live inside <ProtectedRoute>
+// and share <ProtectedLayout> (header + sidebar + Outlet).
+// ------------------------------------------------------------------
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-// Layout & guard
-import ProtectedRoute from './layouts/ProtectedRoute';
-import ProtectedLayout from './layouts/ProtectedLayout';
+import ProtectedRoute   from './layouts/ProtectedRoute';
+import ProtectedLayout  from './layouts/ProtectedLayout';
 
-// Feature pages – start minimal with the Customer module
-import CustomerList from './pages/customers/CustomerList';
-import CustomerForm from './pages/customers/CustomerForm';
+/* ---- Feature pages ---- */
+import CustomerList   from './pages/customers/CustomerList';
+import CustomerForm   from './pages/customers/CustomerForm';
+
+import OrderList      from './pages/orders/OrderList';
+import OrderForm      from './pages/orders/OrderForm';
+
+import PurchaseList   from './pages/purchases/PurchaseList';
+import PurchaseForm   from './pages/purchases/PurchaseForm';
 
 export default function App() {
   return (
     <Routes>
-      {/* Redirect bare domain → /customers */}
+      {/* Redirect plain domain → /customers */}
       <Route path="/" element={<Navigate to="/customers" replace />} />
 
-      {/* Protected area */}
+      {/* Private area (requires login) */}
       <Route element={<ProtectedRoute />}>
         <Route element={<ProtectedLayout />}>
-          {/* Customer management */}
+
+          {/* Customers */}
           <Route path="/customers"            element={<CustomerList />} />
           <Route path="/customers/new"        element={<CustomerForm />} />
           <Route path="/customers/:id/edit"   element={<CustomerForm />} />
 
-          {/* TODO: future pages
-          <Route path="/orders"    element={<OrderList />} />
-          … etc. */}
+          {/* Orders */}
+          <Route path="/orders"               element={<OrderList />} />
+          <Route path="/orders/new"           element={<OrderForm />} />
+          <Route path="/orders/:id/edit"      element={<OrderForm />} />
+
+          {/* Purchases */}
+          <Route path="/purchases"            element={<PurchaseList />} />
+          <Route path="/purchases/new"        element={<PurchaseForm />} />
+          <Route path="/purchases/:id/edit"   element={<PurchaseForm />} />
         </Route>
       </Route>
 
-      {/* Catch‑all → customers */}
+      {/* Fallback → /customers */}
       <Route path="*" element={<Navigate to="/customers" replace />} />
     </Routes>
   );
