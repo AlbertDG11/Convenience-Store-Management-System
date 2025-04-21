@@ -154,7 +154,7 @@ class EmployeeDetailView(APIView):
         elif employee.role == 2:
             manager = Manager.objects.get(employee=employee)
             employee_info["management_level"] = manager.management_level
-            employee_info['management'] = list(employee.subordinates.values('employee_id', 'name'))
+            #employee_info['management'] = list(employee.subordinates.values('employee_id', 'name'))
       
         serialiser = WholeEmployeeSerializer(employee_info)
 
@@ -281,6 +281,81 @@ class EmployeeDetailView(APIView):
             return Response({"message": "Deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
         except Employee.DoesNotExist:
             return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class SubordinateView(APIView):
+    def get(self, request, manager_id):
+        manager = Employee.objects.get(employee_id=manager_id)
+        employee_objs = manager.subordinates.all()
+        employees = []
+
+        for employee in employee_objs.all():
+            employee_info = {
+                'employee_id': employee.employee_id,
+                'name': employee.name,
+                'email': employee.email,
+                'phone_number': employee.phone_number,
+                'salary': employee.salary,
+                'role': employee.role
+            }
+            if employee.role == 0:
+                try:
+                    salesperson = Salesperson.objects.get(employee=employee)
+                    employee_info['sales_target'] = salesperson.sales_target
+                except Salesperson.DoesNotExist:
+                    employee_info['sales_target'] = None
+            elif employee.role == 1:
+                try:
+                    purchaseperson = PurchasePerson.objects.get(employee=employee)
+                    employee_info['purchase_section'] = purchaseperson.purchase_section
+                except PurchasePerson.DoesNotExist:
+                    employee_info['purchase_section'] = None
+            elif employee.role == 2:
+                try:
+                    manager = Manager.objects.get(employee=employee)
+                    employee_info['management_level'] = manager.management_level
+                except Manager.DoesNotExist:
+                    employee_info['management_level'] = None
+            employees.append(employee_info)
+
+        serialiser = WholeEmployeeSerializer(employees, many=True)
+
+        return Response(serialiser.data, status=status.HTTP_200_OK)
+
+    def post(self, request, manager_id):
+        subordinate_id = request.data.get('subordinate_id')
+        supervisor_id = manager_id
+
+        subordinate = Employee.objects.get(employee_id=subordinate_id)
+        
+        if not subordinate:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        manager = Employee.objects.get(employee_id=supervisor_id)
+        if manager.role != 2:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        subordinate.supervisor = manager
+        subordinate.save()
+        return Response({"success": True}, status=status.HTTP_200_OK)
+
+    def delete(self, request, manager_id):
+        subordinate_id = request.data.get('subordinate_id')
+        supervisor_id = manager_id
+
+        subordinate = Employee.objects.get(employee_id=subordinate_id)
+        
+        if not subordinate:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        manager = Employee.objects.get(employee_id=supervisor_id)
+        if manager.role != 2 and subordinate.supervisor_id != supervisor_id:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+            
+        subordinate.supervisor = None
+        subordinate.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 
 # class EmployeeAddressView(APIView):
