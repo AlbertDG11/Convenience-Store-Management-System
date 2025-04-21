@@ -536,9 +536,23 @@ function Subordinate(props) {
 
   const loadSubordinates = () => {
     setLoading(true);
-    fetch(`http://localhost:8000/employee/subordinate/${managerId}/`)
+    const token = localStorage.getItem('token');
+    fetch(`http://localhost:8000/employee/subordinate/${managerId}/`, 
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      }
+    )
       .then(res => res.json())
-      .then((data) => {setSubordinates(data);setEmployees(data);})
+      .then((data) => {setSubordinates(data);setEmployees(data);
+        const user = JSON.parse(localStorage.getItem('user'));
+console.log(user.id);    // employee_id
+console.log(user.role);  // 岗位角色
+      })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
   };

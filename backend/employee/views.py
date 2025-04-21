@@ -6,9 +6,9 @@ from .serializer import *
 from django.http import HttpResponse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
+from ..authentication.utils import get_user_from_token
 
 # Create your views here.
-@permission_classes([IsAuthenticated])
 class EmployeeView(APIView):
     # Query employees
     def get(self, request):
@@ -109,7 +109,15 @@ class EmployeeView(APIView):
 
 
 class EmployeeDetailView(APIView):
+    print("✅ EmployeeDetailView 类加载成功")
     def get(self, request, employee_id):
+        print("🔍 Incoming GET /employee/<id>/ request")
+        print(request)
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+        
         try:
             employee = Employee.objects.get(employee_id = employee_id)
         except Employee.DoesNotExist:
@@ -283,11 +291,16 @@ class EmployeeDetailView(APIView):
             return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-@permission_classes([IsAuthenticated])
+
 class SubordinateView(APIView):
     def get(self, request, manager_id):
         user = request.user  # 这是一个 Employee 实例
-        if user.role != 2:  # 2 = Manager
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+
+        if user_info['role'] != 2:  # 2 = Manager
             return Response({'detail': 'Permission denied'}, status=403)
         manager = Employee.objects.get(employee_id=manager_id)
         employee_objs = manager.subordinates.all()

@@ -32,13 +32,12 @@ export default function Login() {
       const data = await response.json();
 
       localStorage.setItem('token', data.access);
-      localStorage.setItem('refresh', data.refresh);
       localStorage.setItem('user', JSON.stringify(data.user));
       
 
 
       toast.success('Login successful');
-      navigate('/employee');
+      navigate('/profile');
     } catch (error) {
       toast.error(error.message || 'Login failed');
     }

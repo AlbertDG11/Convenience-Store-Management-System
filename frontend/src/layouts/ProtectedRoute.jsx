@@ -29,7 +29,17 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
+    return (
+      <div style={{
+        padding: '4rem',
+        textAlign: 'center',
+        fontSize: '1.2rem',
+        color: '#666',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        You do not have permission to access this page.
+      </div>
+    );
   }
 
   return children;
