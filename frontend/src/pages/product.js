@@ -199,6 +199,7 @@ function UpdateProductDialog({ product, open, onClose, onSave }) {
             label="ID"
             type="number"
             value={form.product_id}
+            disabled
             onChange={handle('product_id')}
             fullWidth
           />
@@ -375,17 +376,17 @@ export default function Product() {
           <TableHead>
             <TableRow>
               {mode==='all' && <> <TableCell>ID</TableCell><TableCell>Name</TableCell><TableCell>Type</TableCell><TableCell>Discount</TableCell><TableCell>Price</TableCell><TableCell>Price After</TableCell> </>}
-              {mode==='food' && <> <TableCell>ID</TableCell><TableCell>Food Type</TableCell><TableCell>Storage</TableCell><TableCell>Expiration</TableCell> </>}
-              {mode==='nonfood' && <> <TableCell>ID</TableCell><TableCell>Warranty</TableCell><TableCell>Brand</TableCell> </>}
+              {mode==='food' && <> <TableCell>ID</TableCell><TableCell>Name</TableCell><TableCell>Food Type</TableCell><TableCell>Storage</TableCell><TableCell>Expiration</TableCell> </>}
+              {mode==='nonfood' && <> <TableCell>ID</TableCell><TableCell>Name</TableCell><TableCell>Warranty</TableCell><TableCell>Brand</TableCell> </>}
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {items.map((item, idx) => (
               <TableRow key={item.product_id}>
-                {mode==='all' && <> <TableCell>{idx+1}</TableCell><TableCell>{item.name}</TableCell><TableCell>{item.type}</TableCell><TableCell>{item.discount}</TableCell><TableCell>{item.price}</TableCell><TableCell>{item.price_after_discount}</TableCell> </>}
-                {mode==='food' && <> <TableCell>{idx+1}</TableCell><TableCell>{item.food_type}</TableCell><TableCell>{item.storage_condition}</TableCell><TableCell>{item.expiration_date}</TableCell> </>}
-                {mode==='nonfood' && <> <TableCell>{idx+1}</TableCell><TableCell>{item.warranty_period}</TableCell><TableCell>{item.brand}</TableCell> </>}
+                {mode==='all' && <> <TableCell>{item.product_id}</TableCell><TableCell>{item.name}</TableCell><TableCell>{item.type}</TableCell><TableCell>{item.discount}</TableCell><TableCell>{item.price}</TableCell><TableCell>{item.price_after_discount}</TableCell> </>}
+                {mode==='food' && <> <TableCell>{item.product_id}</TableCell><TableCell>{item.name}</TableCell><TableCell>{item.food_type}</TableCell><TableCell>{item.storage_condition}</TableCell><TableCell>{item.expiration_date}</TableCell> </>}
+                {mode==='nonfood' && <> <TableCell>{item.product_id}</TableCell><TableCell>{item.name}</TableCell><TableCell>{item.warranty_period}</TableCell><TableCell>{item.brand}</TableCell> </>}
                 <TableCell align="right">
                   <Stack direction="row" spacing={1}>
                     <Button size="small" onClick={() => setDetailId(item.product_id)}>View</Button>
@@ -398,11 +399,13 @@ export default function Product() {
           </TableBody>
         </Table>
       </TableContainer>
-      <Box sx={{ mt: 2 }}>
-        <Button variant="contained" onClick={() => setAddOpen(true)}>
-          Add {mode==='all'? 'Product': mode==='food'? 'Food':'Non‑Food'}
-        </Button>
-      </Box>
+      {mode === 'all' && (
+        <Box sx={{ mt: 2 }}>
+          <Button variant="contained" onClick={() => setAddOpen(true)}>
+            Add Product
+          </Button>
+        </Box>
+      )}
 
       <AddProductDialog mode={mode} open={addOpen} onClose={() => setAddOpen(false)} onSave={d => setItems(i => [...i, d])} />
       <UpdateProductDialog product={editProduct} open={!!editProduct} onClose={() => setEditProduct(null)} onSave={d => setItems(i => i.map(x => x.product_id===d.product_id? d : x))} />
