@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from calendar import monthrange
 from ..order.models import *
 from ..purchase.models import *
+from ..authentication.utils import get_user_from_token
 
 # class ReportViewSet(ViewSet):
 #     """
@@ -215,6 +216,14 @@ class PurchaseDailyView(APIView):
     Returns list of { date, total_cost, purchase_count } for each period.
     """
     def get(self, request):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+
+        if user_info['role'] != 2:
+            return Response({'detail': 'Permission denied'}, status=403)
+        
         start_date_str = request.GET.get('start_date')
         end_date_str   = request.GET.get('end_date')
         report_type    = request.GET.get('type')

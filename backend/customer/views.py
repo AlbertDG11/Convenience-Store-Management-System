@@ -19,7 +19,7 @@ class MembershipViewSet(RoleRequiredMixin, viewsets.ModelViewSet):
 
 
 
-class CustomerAddressViewSet(viewsets.ModelViewSet):
+class CustomerAddressViewSet(RoleRequiredMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows memberships to be viewed or edited.
     Only salesperson and manager are allowed to view the customer address.
