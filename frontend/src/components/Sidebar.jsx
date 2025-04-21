@@ -1,22 +1,23 @@
 // src/components/Sidebar.jsx
-// Permanent left‑hand navigation for all functional modules
-// ------------------------------------------------------------------
 import React from 'react';
 import { Drawer, List, ListItemButton, ListItemText } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const drawerWidth = 220;
 
-// Full menu based on project spec
+// Updated menu without Dashboard
 const menu = [
-  { text: 'Dashboard',           path: '/' },          // (optional landing)
-  { text: 'Orders',              path: '/orders' },
-  { text: 'Products',            path: '/products' },  // future module
-  { text: 'Purchases',           path: '/purchases' },
-  { text: 'Suppliers',           path: '/suppliers' }, // future module
-  { text: 'Customers',           path: '/customers' },
-  { text: 'Employees',           path: '/employees' }, // future module
-  { text: 'Reports & Analytics', path: '/reports' },   // future module
+  { text: 'Profile',        path: '/profile' },
+  { text: 'Customers',      path: '/customers' },
+  { text: 'Orders',         path: '/orders' },
+  { text: 'Purchases',      path: '/purchases' },
+  { text: 'Suppliers',      path: '/supplier' },
+  { text: 'Products',       path: '/product' },
+  { text: 'Contact',        path: '/contact' },
+  { text: 'Sales Report',   path: '/report/sales' },
+  { text: 'Purchase Report',path: '/report/purchase' },
+  { text: 'Inventory',      path: '/inventory' },
+  { text: 'Subordinate',    path: '/subordinate' },
 ];
 
 export default function Sidebar() {
@@ -26,8 +27,7 @@ export default function Sidebar() {
   return (
     <Drawer
       variant="permanent"
-      sx={{ width: drawerWidth, flexShrink: 0,
-            '& .MuiDrawer-paper': { width: drawerWidth } }}
+      sx={{ width: drawerWidth, flexShrink: 0, '& .MuiDrawer-paper': { width: drawerWidth } }}
     >
       <List>
         {menu.map(item => (
