@@ -1,17 +1,28 @@
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+import redis.exceptions
 from .models import *
 from .serializer import *
-from django.http import HttpResponse
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import permission_classes
 from ..authentication.utils import get_user_from_token
+from django.core.cache import cache
 
 # Create your views here.
 class EmployeeView(APIView):
     # Query employees
     def get(self, request):
+        key = "cached_employees_full_info"
+        # try:
+        #     data = cache.get(key)
+        #     print("using cache")
+        #     if data is not None:
+        #         print("using cache")
+        #         return Response(data, status=status.HTTP_200_OK)
+        # except redis.exceptions.ConnectionError:
+        #     print("⚠️ Redis not available, using database fallback.")
+
+        
+
         employee_objs = Employee.objects.all()
         employees = []
 
@@ -45,6 +56,11 @@ class EmployeeView(APIView):
             employees.append(employee_info)
 
         serialiser = WholeEmployeeSerializer(employees, many=True)
+
+        # try:
+        #     cache.set(key, serialiser.data, timeout=60 * 5)
+        # except redis.exceptions.ConnectionError:
+        #     print("⚠️ Redis not available when writing cache.")
 
         return Response(serialiser.data, status=status.HTTP_200_OK)
     
@@ -98,6 +114,10 @@ class EmployeeView(APIView):
                     employee=employee,
                     management_level=valid_data.get('management_level')
                 )
+            # try:
+            #     cache.delete("cached_employees_full_info")
+            # except redis.exceptions.ConnectionError:
+            #     print("⚠️ Redis not available, using database fallback.")
             
             if not exists_warning:
                 return Response({"status": "ok"}, status=status.HTTP_200_OK)
@@ -109,10 +129,7 @@ class EmployeeView(APIView):
 
 
 class EmployeeDetailView(APIView):
-    print("✅ EmployeeDetailView 类加载成功")
     def get(self, request, employee_id):
-        print("🔍 Incoming GET /employee/<id>/ request")
-        print(request)
         user_info = get_user_from_token(request)
 
         if not user_info:
@@ -175,7 +192,7 @@ class EmployeeDetailView(APIView):
         if serialiser.is_valid():
             exists_warning = False
             valid_data = serialiser.validated_data
-            print(valid_data)
+            
             try:
                 employee = Employee.objects.get(employee_id = employee_id)
             except Employee.DoesNotExist:
@@ -201,7 +218,6 @@ class EmployeeDetailView(APIView):
             employee.save()
 
             updated_addresses = valid_data.get("addresses", [])
-            print(updated_addresses)
             existing_addresses = EmployeeAddress.objects.filter(employee=employee)
 
             updated_addresses_ids = set()
@@ -249,7 +265,6 @@ class EmployeeDetailView(APIView):
                         employee=employee
                     )
 
-            print(EmployeeAddress.objects.filter(employee=employee))
             if valid_data['role'] == 0:
                 salesperson = Salesperson.objects.get(employee=employee)
                 salesperson.sales_target = valid_data.get('sales_target')
@@ -264,7 +279,13 @@ class EmployeeDetailView(APIView):
                 salesperson = Manager.objects.get(employee=employee)
                 salesperson.management_level = valid_data.get('management_level')
                 salesperson.save()
-            
+
+            # try:
+            #     cache.delete("cached_employees_full_info")
+            #     print("delete")
+            # except redis.exceptions.ConnectionError:
+            #     print("⚠️ Redis not available, using database fallback.")
+
             if not exists_warning:
                 return Response({"status": "ok"}, status=status.HTTP_200_OK)
             else:
@@ -286,6 +307,12 @@ class EmployeeDetailView(APIView):
             if role:
                 role.objects.filter(employee=employee).delete()
             employee.delete()
+
+            # try:
+            #     cache.delete("cached_employees_full_info")
+            # except redis.exceptions.ConnectionError:
+            #     print("⚠️ Redis not available, using database fallback.")
+
             return Response({"message": "Deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
         except Employee.DoesNotExist:
             return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -294,14 +321,14 @@ class EmployeeDetailView(APIView):
 
 class SubordinateView(APIView):
     def get(self, request, manager_id):
-        user = request.user  # 这是一个 Employee 实例
         user_info = get_user_from_token(request)
 
         if not user_info:
             return Response({'detail': 'Unauthorized'}, status=401)
 
-        if user_info['role'] != 2:  # 2 = Manager
+        if user_info['role'] != 2:
             return Response({'detail': 'Permission denied'}, status=403)
+        
         manager = Employee.objects.get(employee_id=manager_id)
         employee_objs = manager.subordinates.all()
         employees = []
@@ -354,6 +381,10 @@ class SubordinateView(APIView):
 
         subordinate.supervisor = manager
         subordinate.save()
+        # try:
+        #     cache.delete("cached_employees_full_info")
+        # except redis.exceptions.ConnectionError:
+        #     print("⚠️ Redis not available, using database fallback.")
         return Response({"success": True}, status=status.HTTP_200_OK)
 
     def delete(self, request, manager_id):
@@ -371,6 +402,11 @@ class SubordinateView(APIView):
             
         subordinate.supervisor = None
         subordinate.save()
+        # try:
+        #     cache.delete("cached_employees_full_info")
+        # except redis.exceptions.ConnectionError:
+        #     print("⚠️ Redis not available, using database fallback.")
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

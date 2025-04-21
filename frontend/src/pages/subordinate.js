@@ -210,8 +210,14 @@ function EmployeeDetailDialog({ employeeId, open, onClose }) {
 
   useEffect(() => {
     if (open && employeeId) {
+      const token = localStorage.getItem('token');
       setLoading(true);
-      fetch(`http://localhost:8000/employee/${employeeId}/`)
+      fetch(`http://localhost:8000/employee/${employeeId}/`,
+        {method: "GET",
+        headers: { 
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json' 
+        }})
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch employee details");
           return res.json();
@@ -287,8 +293,17 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
 
   useEffect(() => {
     if (open && employeeId) {
+      const token = localStorage.getItem('token');
+      console.log(token)
       setLoading(true);
-      fetch(`http://localhost:8000/employee/${employeeId}/`)
+      fetch(`http://localhost:8000/employee/${employeeId}/`, 
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+        })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch employee details");
           return res.json();
@@ -350,11 +365,17 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
 
   const handleSubmit = () => {
     console.log("Submitting form:", form);
-    fetch(`http://localhost:8000/employee/${employeeId}/`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
+    const token = localStorage.getItem('token');
+    fetch(`http://localhost:8000/employee/${employeeId}/`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(form),
+        credentials: 'include'
+      })
     .then(async res => {
       const text = await res.text();
       const data = text ? JSON.parse(text) : null;
@@ -479,6 +500,7 @@ function DeleteEmployeeDialog({ open, employee, onClose, onConfirm }) {
 // Dialog to confirm and delete a subordinate
 function DeleteSubordinateDialog({ open, managerId, subordinate, onClose, onConfirm }) {
   const handleDelete = () => {
+    const token = localStorage.getItem('token');
     fetch(`http://localhost:8000/employee/subordinate/${managerId}/`, {
       method: 'DELETE',
       headers: {
@@ -550,8 +572,6 @@ function Subordinate(props) {
       .then(res => res.json())
       .then((data) => {setSubordinates(data);setEmployees(data);
         const user = JSON.parse(localStorage.getItem('user'));
-console.log(user.id);    // employee_id
-console.log(user.role);  // 岗位角色
       })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
@@ -587,9 +607,15 @@ console.log(user.role);  // 岗位角色
   });
 
   const handleConfirmDelete = () => {
-    fetch(`http://localhost:8000/employee/${employeeToDelete.employee_id}/`, {
-      method: 'DELETE',
-    })
+    const token = localStorage.getItem('token');
+    fetch(`http://localhost:8000/employee/${employeeToDelete.employee_id}/`, 
+      {
+        method: 'Delete',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        }
+      })
       .then((res) => {
         if (res.ok) {
           setEmployees((prev) =>

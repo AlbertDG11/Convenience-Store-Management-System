@@ -116,7 +116,6 @@ function EditProfile({ employeeId, onSave, onCancel }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    console.log("token", token);
     setLoading(true);
     fetch(`http://localhost:8000/employee/${employeeId}/`,
       {method: "GET",
