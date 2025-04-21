@@ -216,13 +216,7 @@ class PurchaseDailyView(APIView):
     Returns list of { date, total_cost, purchase_count } for each period.
     """
     def get(self, request):
-        user_info = get_user_from_token(request)
-
-        if not user_info:
-            return Response({'detail': 'Unauthorized'}, status=401)
-
-        if user_info['role'] != 2:
-            return Response({'detail': 'Permission denied'}, status=403)
+        
         
         start_date_str = request.GET.get('start_date')
         end_date_str   = request.GET.get('end_date')
@@ -238,8 +232,8 @@ class PurchaseDailyView(APIView):
         # --- daily report (unchanged) ---
         if report_type == "daily":
             qs = InventoryPurchase.objects.filter(
-                purchase_time__date__gte=start_date,
-                purchase_time__date__lte=end_date
+                purchase_time__gte=start_date,
+                purchase_time__lte=end_date
             )
             raw = (
                 qs
@@ -272,8 +266,8 @@ class PurchaseDailyView(APIView):
             extended_end   = get_sunday(end_date)
 
             qs = InventoryPurchase.objects.filter(
-                purchase_time__date__gte=extended_start,
-                purchase_time__date__lte=extended_end
+                purchase_time__gte=extended_start,
+                purchase_time__lte=extended_end
             )
             raw_weekly = (
                 qs
@@ -312,8 +306,8 @@ class PurchaseDailyView(APIView):
             extended_end   = get_last_day_of_month(end_date)
 
             qs = InventoryPurchase.objects.filter(
-                purchase_time__date__gte=extended_start,
-                purchase_time__date__lte=extended_end
+                purchase_time__gte=extended_start,
+                purchase_time__lte=extended_end
             )
             raw_monthly = (
                 qs

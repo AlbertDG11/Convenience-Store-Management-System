@@ -33,17 +33,18 @@ function DailyPurchaseChart({ data }) {
 }
 
 export default function PurchaseReportDashboard() {
+  const [reportType, setReportType] = useState('daily'); 
   const [startDate, setStartDate] = useState('2025-04-10');
   const [endDate,   setEndDate]   = useState('2025-04-17');
   const [data,      setData]      = useState([]);
 
   useEffect(() => {
     axios.get('http://localhost:8000/report/purchase/', {
-      params: { start_date: startDate, end_date: endDate, type: 'daily' }
+      params: { start_date: startDate, end_date: endDate, type: reportType }
     })
     .then(res => setData(res.data))
     .catch(err => console.error(err));
-  }, [startDate, endDate]);
+  }, [reportType, startDate, endDate]);
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', py: 4 }}>
@@ -60,6 +61,18 @@ export default function PurchaseReportDashboard() {
         <Typography variant="h4" gutterBottom align="center" fontWeight="bold">
           Purchase Report
         </Typography>
+
+        <Stack direction="row" spacing={2} justifyContent="center" sx={{ my: 2 }}>
+          {['daily', 'weekly', 'monthly'].map((type) => (
+            <Button
+              key={type}
+              variant={reportType === type ? 'contained' : 'outlined'}
+              onClick={() => setReportType(type)}
+            >
+              {type.toUpperCase()}
+            </Button>
+          ))}
+        </Stack>
 
         <Grid container spacing={2} justifyContent="center" sx={{ mb: 4 }}>
           <Grid item>
