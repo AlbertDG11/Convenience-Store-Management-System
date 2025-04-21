@@ -153,6 +153,7 @@ function UpdateInventoryDialog({ open, inventory, onClose, onSave }) {
             type="number"
             fullWidth
             value={form.product}
+            disabled
             onChange={handleChange('product')}
           />
           <TextField
@@ -160,6 +161,7 @@ function UpdateInventoryDialog({ open, inventory, onClose, onSave }) {
             type="number"
             fullWidth
             value={form.inventory_id}
+            disabled
             onChange={handleChange('inventory_id')}
           />
           <TextField
@@ -237,7 +239,7 @@ export default function Inventory() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell><strong>ID</strong></TableCell>
+              
               <TableCell><strong>Product</strong></TableCell>
               <TableCell><strong>Inventory ID</strong></TableCell>
               <TableCell><strong>Location</strong></TableCell>
@@ -249,9 +251,14 @@ export default function Inventory() {
           <TableBody>
             {inventories.map(inv => (
               <TableRow key={inv.id}>
-                <TableCell>{inv.id}</TableCell>
-                <TableCell>{inv.product}</TableCell>
-                <TableCell>{inv.inventory_id}</TableCell>
+                
+                <TableCell sx={{ color: Number(inv.quantity) < 10 ? 'error.main' : 'inherit' }}>
+                  {inv.product}
+                </TableCell>
+                <TableCell sx={{ color: Number(inv.quantity) < 10 ? 'error.main' : 'inherit' }}>
+                  {inv.inventory_id}
+                </TableCell>
+                
                 <TableCell>{inv.location}</TableCell>
                 <TableCell sx={{ color: Number(inv.quantity) < 10 ? 'error.main' : 'inherit' }}>
                   {inv.quantity}
