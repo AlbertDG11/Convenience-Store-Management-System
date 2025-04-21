@@ -1,7 +1,7 @@
 from django.db import models
 
 class Product(models.Model):
-    product_id = models.AutoField(primary_key=True)
+    product_id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=20)
     type = models.CharField(max_length=50, null=True, blank=True)
     discount = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
