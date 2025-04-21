@@ -64,7 +64,7 @@ export default function App() {
         </Route>
       </Route>
 
-      {/* Fallback → /customers */}
+      {/* Fallback → /login */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
