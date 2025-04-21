@@ -41,9 +41,10 @@ function AddProductDialog({ mode, open, onClose, onSave }) {
 
     console.log('Creating product payload:', payload);
 
+    const token = localStorage.getItem('token');
     fetch(`${BASE}/products/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
       .then(async res => {
@@ -166,9 +167,10 @@ function UpdateProductDialog({ product, open, onClose, onSave }) {
 
     console.log('Updating product payload:', payload);
 
+    const token = localStorage.getItem('token');
     fetch(`${BASE}/products/${product.product_id}/`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
       .then(async res => {

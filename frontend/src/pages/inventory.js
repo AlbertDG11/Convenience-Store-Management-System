@@ -116,9 +116,12 @@ function UpdateInventoryDialog({ open, inventory, onClose, onSave }) {
   };
 
   const handleSubmit = () => {
+    const token = localStorage.getItem('token');
     fetch(`${BASE_URL}/${form.id}/`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': "Bearer" + token
+       },
       body: JSON.stringify(form)
     })
       .then(async res => {

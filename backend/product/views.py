@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from .models import Product,FoodProduct, NonFoodProduct,  Inventory
 from .serializer import ProductSerializer, InventorySerializer, FoodProductSerializer, NonFoodProductSerializer
 from ..authentication.utils import get_user_from_token
+from backend.authentication.mixins import RoleRequiredMixin
 
 class ProductViewSet(viewsets.ViewSet):
     """
@@ -18,9 +19,6 @@ class ProductViewSet(viewsets.ViewSet):
         if not user_info:
             return Response({'detail': 'Unauthorized'}, status=401)
         
-        if user_info['role'] != 1 and user_info['role'] != 2:
-            return Response({'detail': 'Permission denied'}, status=403)
-        
         """
         GET /api/product/products/
         Optionally filter by ?type=food or ?type=nonfood
@@ -33,6 +31,11 @@ class ProductViewSet(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, pk=None):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+        
         """
         GET /api/product/products/{pk}/
         """
@@ -41,6 +44,11 @@ class ProductViewSet(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+        
         """
         POST /api/product/products/
         Body: { name, type, discount, price, price_after_discount,
@@ -56,6 +64,11 @@ class ProductViewSet(viewsets.ViewSet):
         return Response(out.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, pk=None):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+        
         """
         PUT /api/product/products/{pk}/
         Full replace of all fields.
@@ -70,6 +83,11 @@ class ProductViewSet(viewsets.ViewSet):
         return Response(out.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request, pk=None):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+        
         """
         PATCH /api/product/products/{pk}/
         Partial update of any subset of fields.
@@ -84,6 +102,12 @@ class ProductViewSet(viewsets.ViewSet):
         return Response(out.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, pk=None):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+        
+        
         """
         DELETE /api/product/products/{pk}/
         """
@@ -96,6 +120,7 @@ class FoodProductViewSet(viewsets.ModelViewSet):
     Exposes all FoodProduct rows.
     You can filter by ?product=<product_id> to fetch one specific record.
     """
+    allowed_roles = [0,1,2]
     queryset = FoodProduct.objects.all()
     serializer_class = FoodProductSerializer
 
@@ -108,6 +133,8 @@ class FoodProductViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 class NonFoodProductViewSet(viewsets.ModelViewSet):
+    
+    allowed_roles = [0,1,2]
     queryset = NonFoodProduct.objects.all()
     serializer_class = NonFoodProductSerializer
 
@@ -128,6 +155,8 @@ class NonFoodProductViewSet(viewsets.ModelViewSet):
 #    serializer_class = NonFoodProductSerializer
     
 class InventoryViewSet(viewsets.ModelViewSet):
+    
+    allowed_roles = [0,1,2]
     queryset = Inventory.objects.all()
     serializer_class = InventorySerializer
     
