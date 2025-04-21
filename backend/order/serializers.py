@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order, OrderItem
+from .models import Orders, OrderItem
 from backend.product.models import Product
 from backend.customer.models import Membership
 from django.db import transaction
@@ -13,7 +13,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.ReadOnlyField(source='product.name')
     class Meta:
         model = OrderItem
-        fields = ['id', 'order', 'product', 'quantity', 'product_name']
+        fields = ['id', 'order', 'product', 'quantity_ordered', 'product_name']
         read_only_fields = ['id', 'product_name']
 
 

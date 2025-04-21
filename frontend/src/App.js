@@ -11,9 +11,7 @@ import ProtectedLayout  from './layouts/ProtectedLayout';
 /* ---- Feature pages ---- */
 import CustomerList   from './pages/customers/CustomerList';
 import CustomerForm   from './pages/customers/CustomerForm';
-// Feature pages – start minimal with the Customer module
-import CustomerList from './pages/customers/CustomerList';
-import CustomerForm from './pages/customers/CustomerForm';
+
 import { Login, Employee, EmployeeContact, SalesReportDashboard, Profile, Subordinate } from './pages';
 import Supplier from './pages/supplier';
 import Product from './pages/product';
@@ -42,7 +40,6 @@ export default function App() {
           <Route path="/customers/:id/edit"   element={<CustomerForm />} />
 
           {/* TODO: future pages
-          <Route path="/orders"    element={<OrderList />} />
           … etc. */}
           <Route path='/' element={<h1>Home</h1>}/>
           <Route path='/login' element={<Login />}/>
