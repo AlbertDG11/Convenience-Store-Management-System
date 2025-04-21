@@ -24,6 +24,7 @@ function getRole(roleCode) {
 
 
 function AddEmployeeDialog({ open, onClose, onSave }) {
+  const token = localStorage.getItem('token');
   const [form, setForm] = useState({});
   const [addresses, setAddresses] = useState([
     { province: '', city: '', street_address: '', post_code: '' }
@@ -56,7 +57,10 @@ function AddEmployeeDialog({ open, onClose, onSave }) {
 
     fetch(`http://localhost:8000/employee/`, {
       method: "POST",
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json' 
+      },
       body: JSON.stringify(payload)
     })
     .then(async (res) => {
@@ -167,11 +171,19 @@ function EmployeeDetailDialog({ employeeId, open, onClose }) {
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     if (open && employeeId) {
       setLoading(true);
-      fetch(`http://localhost:8000/employee/${employeeId}/`)
+
+      fetch(`http://localhost:8000/employee/${employeeId}/`,
+        {method: "POST",
+        headers: { 
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json' 
+        }}
+      )
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch employee details");
           return res.json();
@@ -244,11 +256,18 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     if (open && employeeId) {
       setLoading(true);
-      fetch(`http://localhost:8000/employee/${employeeId}/`)
+      fetch(`http://localhost:8000/employee/${employeeId}/`,
+        {method: "POST",
+        headers: { 
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json' 
+      }}
+      )
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch employee details");
           return res.json();
@@ -312,7 +331,10 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
     console.log("Submitting form:", form);
     fetch(`http://localhost:8000/employee/${employeeId}/`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+       },
       body: JSON.stringify(form),
     })
     .then(res => res.json())

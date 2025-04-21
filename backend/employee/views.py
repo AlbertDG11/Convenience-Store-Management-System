@@ -4,8 +4,11 @@ from rest_framework.response import Response
 from .models import *
 from .serializer import *
 from django.http import HttpResponse
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 
 # Create your views here.
+@permission_classes([IsAuthenticated])
 class EmployeeView(APIView):
     # Query employees
     def get(self, request):
@@ -280,8 +283,12 @@ class EmployeeDetailView(APIView):
             return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
+@permission_classes([IsAuthenticated])
 class SubordinateView(APIView):
     def get(self, request, manager_id):
+        user = request.user  # 这是一个 Employee 实例
+        if user.role != 2:  # 2 = Manager
+            return Response({'detail': 'Permission denied'}, status=403)
         manager = Employee.objects.get(employee_id=manager_id)
         employee_objs = manager.subordinates.all()
         employees = []
