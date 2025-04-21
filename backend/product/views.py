@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from .models import Product,FoodProduct, NonFoodProduct,  Inventory
 from .serializer import ProductSerializer, InventorySerializer, FoodProductSerializer, NonFoodProductSerializer
+from ..authentication.utils import get_user_from_token
 
 class ProductViewSet(viewsets.ViewSet):
     """
@@ -12,6 +13,14 @@ class ProductViewSet(viewsets.ViewSet):
     """
 
     def list(self, request):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+        
+        if user_info['role'] != 1 and user_info['role'] != 2:
+            return Response({'detail': 'Permission denied'}, status=403)
+        
         """
         GET /api/product/products/
         Optionally filter by ?type=food or ?type=nonfood
