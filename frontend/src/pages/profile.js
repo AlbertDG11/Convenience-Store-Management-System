@@ -177,6 +177,7 @@ function EditProfile({ employeeId, onSave, onCancel }) {
 
   const handleSubmit = () => {
     console.log("Submitting form:", form);
+    const token = localStorage.getItem('token');
     fetch(`http://localhost:8000/employee/${employeeId}/`, {
       method: 'PUT',
       headers: { 

@@ -33,8 +33,6 @@ export default function Login() {
 
       localStorage.setItem('token', data.access);
       localStorage.setItem('user', JSON.stringify(data.user));
-      
-
 
       toast.success('Login successful');
       

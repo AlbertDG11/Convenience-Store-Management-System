@@ -162,9 +162,13 @@ function AddSubordinateDialog({ open, managerId, onClose, onSave }) {
   const [subordinateId, setSubordinateId] = useState('');
 
   const handleSubmit = () => {
+    const token = localStorage.getItem('token');
     fetch(`http://localhost:8000/employee/subordinate/${managerId}/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+       },
       body: JSON.stringify({ subordinate_id: parseInt(subordinateId, 10) }),
     })
       .then(async (res) => {
@@ -297,7 +301,6 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
   useEffect(() => {
     if (open && employeeId) {
       const token = localStorage.getItem('token');
-      console.log(token)
       setLoading(true);
       fetch(`http://localhost:8000/employee/${employeeId}/`, 
         {
@@ -367,7 +370,6 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
   
 
   const handleSubmit = () => {
-    console.log("Submitting form:", form);
     const token = localStorage.getItem('token');
     fetch(`http://localhost:8000/employee/${employeeId}/`,
       {
@@ -507,7 +509,8 @@ function DeleteSubordinateDialog({ open, managerId, subordinate, onClose, onConf
     fetch(`http://localhost:8000/employee/subordinate/${managerId}/`, {
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ subordinate_id: parseInt(subordinate.employee_id, 10) }),
     })
@@ -557,7 +560,7 @@ function Subordinate(props) {
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
   const [subordinateToDelete, setSubordinateToDelete] = useState(null);
   const [subordinates, setSubordinates] = useState([]);
-  const managerId = 3;
+  const managerId = JSON.parse(localStorage.getItem('user')).id;
 
   const loadSubordinates = () => {
     setLoading(true);

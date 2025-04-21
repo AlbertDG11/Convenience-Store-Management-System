@@ -11,6 +11,11 @@ from django.core.cache import cache
 class EmployeeView(APIView):
     # Query employees
     def get(self, request):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+
         key = "cached_employees_full_info"
         # try:
         #     data = cache.get(key)
@@ -19,9 +24,7 @@ class EmployeeView(APIView):
         #         print("using cache")
         #         return Response(data, status=status.HTTP_200_OK)
         # except redis.exceptions.ConnectionError:
-        #     print("⚠️ Redis not available, using database fallback.")
-
-        
+        #     print("Redis not available, using database fallback.")
 
         employee_objs = Employee.objects.all()
         employees = []
@@ -60,11 +63,19 @@ class EmployeeView(APIView):
         # try:
         #     cache.set(key, serialiser.data, timeout=60 * 5)
         # except redis.exceptions.ConnectionError:
-        #     print("⚠️ Redis not available when writing cache.")
+        #     print("Redis not available when writing cache.")
 
         return Response(serialiser.data, status=status.HTTP_200_OK)
     
     def post(self, request):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+
+        if user_info['role'] != 2:
+            return Response({'detail': 'Permission denied'}, status=403)
+
         serialiser = WholeEmployeeSerializer(data=request.data)
         if serialiser.is_valid():
             exists_warning = False
@@ -117,7 +128,7 @@ class EmployeeView(APIView):
             # try:
             #     cache.delete("cached_employees_full_info")
             # except redis.exceptions.ConnectionError:
-            #     print("⚠️ Redis not available, using database fallback.")
+            #     print("Redis not available, using database fallback.")
             
             if not exists_warning:
                 return Response({"status": "ok"}, status=status.HTTP_200_OK)
@@ -188,6 +199,11 @@ class EmployeeDetailView(APIView):
         return Response(serialiser.data, status=status.HTTP_200_OK)
     
     def put(self, request, employee_id):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+
         serialiser = WholeEmployeeSerializer(data=request.data)
         if serialiser.is_valid():
             exists_warning = False
@@ -284,7 +300,7 @@ class EmployeeDetailView(APIView):
             #     cache.delete("cached_employees_full_info")
             #     print("delete")
             # except redis.exceptions.ConnectionError:
-            #     print("⚠️ Redis not available, using database fallback.")
+            #     print("Redis not available, using database fallback.")
 
             if not exists_warning:
                 return Response({"status": "ok"}, status=status.HTTP_200_OK)
@@ -294,6 +310,14 @@ class EmployeeDetailView(APIView):
             return Response({"err": "error"}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, employee_id):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+
+        if user_info['role'] != 2:
+            return Response({'detail': 'Permission denied'}, status=403)
+
         try:
             employee = Employee.objects.get(pk=employee_id)
             EmployeeAddress.objects.filter(employee=employee).delete()
@@ -311,7 +335,7 @@ class EmployeeDetailView(APIView):
             # try:
             #     cache.delete("cached_employees_full_info")
             # except redis.exceptions.ConnectionError:
-            #     print("⚠️ Redis not available, using database fallback.")
+            #     print("Redis not available, using database fallback.")
 
             return Response({"message": "Deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
         except Employee.DoesNotExist:
@@ -384,10 +408,18 @@ class SubordinateView(APIView):
         # try:
         #     cache.delete("cached_employees_full_info")
         # except redis.exceptions.ConnectionError:
-        #     print("⚠️ Redis not available, using database fallback.")
+        #     print("Redis not available, using database fallback.")
         return Response({"success": True}, status=status.HTTP_200_OK)
 
     def delete(self, request, manager_id):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+
+        if user_info['role'] != 2:
+            return Response({'detail': 'Permission denied'}, status=403)
+
         subordinate_id = request.data.get('subordinate_id')
         supervisor_id = manager_id
 
@@ -405,7 +437,7 @@ class SubordinateView(APIView):
         # try:
         #     cache.delete("cached_employees_full_info")
         # except redis.exceptions.ConnectionError:
-        #     print("⚠️ Redis not available, using database fallback.")
+        #     print("Redis not available, using database fallback.")
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 

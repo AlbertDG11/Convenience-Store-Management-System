@@ -3,7 +3,6 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from backend.employee.permissions import IsPurchasePersonOrManager
 from .models import Supplier
 from .serializer import SupplierSerializer
 from .models import SupplierAddress

@@ -83,6 +83,7 @@ def add_month(date):
 
 class SalesReportView(APIView):
     def get(self, request):
+        
         start_date_str = request.GET.get('start_date')
         end_date_str = request.GET.get('end_date')
         report_type = request.GET.get('type')

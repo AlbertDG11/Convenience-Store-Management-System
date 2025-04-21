@@ -16,6 +16,3 @@ def get_user_from_token(request):
         except InvalidTokenError:
             return None
     return None
-
-
-
