@@ -1,5 +1,5 @@
 // src/api.js
-// Unified Axios wrapper – contains Customer, Order, Purchase endpoints
+// Unified Axios wrapper
 // ---------------------------------------------------------------------
 import axios from 'axios';
 
@@ -20,6 +20,18 @@ export const fetchCustomerById  = id            => api.get(`customer/customers/$
 export const createCustomer     = data          => api.post('customer/customers/', data);
 export const updateCustomer     = (id, data)    => api.put(`customer/customers/${id}/`, data);
 export const deleteCustomer     = id            => api.delete(`customer/customers/${id}/`);
+
+/* ---------- CustomerAddress ---------- */
+export const fetchCustomerAddresses = () =>
+  api.get('customer/customer-addresses/');
+export const createCustomerAddress = data =>
+  api.post('customer/customer-addresses/', data);
+export const updateCustomerAddress = (id, data) =>
+  api.put(`customer/customer-addresses/${id}/`, data);
+export const deleteCustomerAddress = id =>
+  api.delete(`customer/customer-addresses/${id}/`);
+export const fetchAddressesByMembershipId = membershipId =>
+  api.get(`customer/customer-addresses/?membership_id=${membershipId}`);
 
 /* ---------- Order ---------- */
 export const fetchOrders        = ()            => api.get('order/orders/');
