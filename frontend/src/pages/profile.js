@@ -37,7 +37,16 @@ function ShowProfile({ employeeId, onEdit }) {
 
   useEffect(() => {
       setLoading(true);
-      fetch(`http://localhost:8000/employee/${employeeId}/`)
+      const token = localStorage.getItem('token');
+      console.log("token", token);
+      fetch(`http://localhost:8000/employee/${employeeId}/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch employee details");
           return res.json();
@@ -106,8 +115,14 @@ function EditProfile({ employeeId, onSave, onCancel }) {
   const [error, setError]   = useState(null);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
     setLoading(true);
-    fetch(`http://localhost:8000/employee/${employeeId}/`)
+    fetch(`http://localhost:8000/employee/${employeeId}/`,
+      {method: "GET",
+      headers: { 
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json' 
+      }})
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch employee details");
         return res.json();
@@ -259,7 +274,7 @@ function EditProfile({ employeeId, onSave, onCancel }) {
 
 function Profile(props) {
   const [mode, setMode] = useState('view'); // 'view' | 'edit'
-  const employeeId = 6;
+  const employeeId = JSON.parse(localStorage.getItem('user')).id;
 
   return (
     <div>

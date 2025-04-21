@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box,
   Typography,
   TextField,
   Button,
@@ -12,19 +11,18 @@ import {
 import { toast } from 'react-hot-toast';
 
 export default function Login() {
-  const [account, setAccount] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    console.log(account)
     try {
       const response = await fetch('http://localhost:8000/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ account, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (!response.ok) {
@@ -32,8 +30,26 @@ export default function Login() {
       }
 
       const data = await response.json();
+
+      localStorage.setItem('token', data.access);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+
+
       toast.success('Login successful');
-      navigate('/employee');
+      
+      const role = data.user.role;
+
+      if (role === 0) {
+        navigate('/orders');
+      } else if (role === 1) {
+        navigate('/purchases');
+      } else if (role === 2) {
+        navigate('/report/sales');
+      } else {
+        navigate('/profile');
+      }
+      
     } catch (error) {
       toast.error(error.message || 'Login failed');
     }
@@ -51,8 +67,8 @@ export default function Login() {
             label="Account"
             variant="outlined"
             fullWidth
-            value={account}
-            onChange={(e) => setAccount(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
           <TextField
             label="Password"

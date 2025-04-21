@@ -35,11 +35,18 @@ function EmployeeDetailDialog({ employeeId, open, onClose }) {
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     if (open && employeeId) {
       setLoading(true);
-      fetch(`http://localhost:8000/employee/${employeeId}/`)
+      fetch(`http://localhost:8000/employee/${employeeId}/`, {
+        method: "GET",
+        headers: { 
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json' 
+        },
+      })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch employee details");
           return res.json();
@@ -107,9 +114,16 @@ function EmployeeContact(props) {
     name: '',
     phone: ''
   });
+  const token = localStorage.getItem('token');
   
   useEffect(() => {
-      fetch('http://localhost:8000/employee/')
+      fetch('http://localhost:8000/employee/', {
+        method: "GET",
+        headers: { 
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json' 
+        },
+      })
       .then((response) => {
       if (!response.ok) {
           throw new Error('Network response was not OK');

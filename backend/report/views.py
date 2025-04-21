@@ -210,8 +210,8 @@ class SalesReportView(APIView):
         
 class PurchaseDailyView(APIView):
     """
-    GET /report/purchase/?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&type=daily
-    Returns list of { date, total_cost, purchase_count } for each day.
+    GET /report/purchase/?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&type=<daily|weekly|monthly>
+    Returns list of { date, total_cost, purchase_count } for each period.
     """
     def get(self, request):
         start_date_str = request.GET.get('start_date')
@@ -225,40 +225,117 @@ class PurchaseDailyView(APIView):
         except (TypeError, ValueError):
             return Response({"error": "Invalid or missing date"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if report_type != "daily":
-            return Response({"error": "Unsupported report type"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # filter purchases in range
-        qs = InventoryPurchase.objects.filter(
-            purchase_time__date__gte=start_date,
-            purchase_time__date__lte=end_date
-        )
-
-        # aggregate per day
-        raw = (
-            qs
-            .annotate(date=TruncDate('purchase_time'))
-            .values('date')
-            .annotate(
-                total_cost=Sum('total_cost'),
-                purchase_count=Count('purchase_id')
+        # --- daily report (unchanged) ---
+        if report_type == "daily":
+            qs = InventoryPurchase.objects.filter(
+                purchase_time__date__gte=start_date,
+                purchase_time__date__lte=end_date
             )
-            .order_by('date')
-        )
+            raw = (
+                qs
+                .annotate(date=TruncDate('purchase_time'))
+                .values('date')
+                .annotate(
+                    total_cost=Sum('total_cost'),
+                    purchase_count=Count('purchase_id')
+                )
+                .order_by('date')
+            )
+            data_map = { entry['date']: entry for entry in raw }
 
-        # map for quick lookup
-        data_map = { entry['date']: entry for entry in raw }
+            current = start_date
+            daily_data = []
+            while current <= end_date:
+                entry = data_map.get(current, {'total_cost': 0, 'purchase_count': 0})
+                daily_data.append({
+                    "date": current,
+                    "total_cost": float(entry['total_cost'] or 0),
+                    "purchase_count": entry['purchase_count']
+                })
+                current += timedelta(days=1)
 
-        # build full list with zero‐fills
-        current = start_date
-        daily_data = []
-        while current <= end_date:
-            entry = data_map.get(current, {'total_cost': 0, 'purchase_count': 0})
-            daily_data.append({
-                "date": current,
-                "total_cost": float(entry['total_cost'] or 0),
-                "purchase_count": entry['purchase_count']
-            })
-            current += timedelta(days=1)
+            return Response(daily_data)
 
-        return Response(daily_data)
+        # --- weekly report (added) ---
+        elif report_type == "weekly":
+            extended_start = get_monday(start_date)
+            extended_end   = get_sunday(end_date)
+
+            qs = InventoryPurchase.objects.filter(
+                purchase_time__date__gte=extended_start,
+                purchase_time__date__lte=extended_end
+            )
+            raw_weekly = (
+                qs
+                .annotate(week=TruncWeek('purchase_time'))
+                .values('week')
+                .annotate(
+                    total_cost=Sum('total_cost'),
+                    purchase_count=Count('purchase_id')
+                )
+                .order_by('week')
+            )
+            week_map = {
+                entry['week'].date(): {
+                    "total_cost": float(entry['total_cost']),
+                    "purchase_count": entry['purchase_count']
+                }
+                for entry in raw_weekly
+            }
+
+            current_week = extended_start
+            weekly_data = []
+            while current_week <= extended_end:
+                data = week_map.get(current_week, {"total_cost": 0.0, "purchase_count": 0})
+                weekly_data.append({
+                    "date": current_week,
+                    "total_cost": data["total_cost"],
+                    "purchase_count": data["purchase_count"]
+                })
+                current_week += timedelta(weeks=1)
+
+            return Response(weekly_data)
+
+        # --- monthly report (added) ---
+        elif report_type == "monthly":
+            extended_start = get_first_day_of_month(start_date)
+            extended_end   = get_last_day_of_month(end_date)
+
+            qs = InventoryPurchase.objects.filter(
+                purchase_time__date__gte=extended_start,
+                purchase_time__date__lte=extended_end
+            )
+            raw_monthly = (
+                qs
+                .annotate(month=TruncMonth('purchase_time'))
+                .values('month')
+                .annotate(
+                    total_cost=Sum('total_cost'),
+                    purchase_count=Count('purchase_id')
+                )
+                .order_by('month')
+            )
+            month_map = {
+                entry['month'].date(): {
+                    "total_cost": float(entry['total_cost']),
+                    "purchase_count": entry['purchase_count']
+                }
+                for entry in raw_monthly
+            }
+
+            current_month = extended_start
+            monthly_data = []
+            while current_month <= extended_end:
+                data = month_map.get(current_month, {"total_cost": 0.0, "purchase_count": 0})
+                monthly_data.append({
+                    "date": current_month,
+                    "total_cost": data["total_cost"],
+                    "purchase_count": data["purchase_count"]
+                })
+                current_month = add_month(current_month)
+
+            return Response(monthly_data)
+
+        # unsupported type
+        else:
+            return Response(status=status.HTTP_204_NO_CONTENT)
