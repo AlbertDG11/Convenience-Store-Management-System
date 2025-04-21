@@ -19,7 +19,7 @@ from rest_framework.views import APIView
 #         except Employee.DoesNotExist:
 #             return Response({"error": "Incorrect user or password"}, status=status.HTTP_403_FORBIDDEN)
 
-from rest_framework_simplejwt.views import TokenObtainPairView
+#from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializer import AuthenticationSerializer
 
 

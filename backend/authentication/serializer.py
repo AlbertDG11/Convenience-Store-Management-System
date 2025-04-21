@@ -1,14 +1,11 @@
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import serializers
 from ..employee.models import Employee
-from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import datetime, timedelta
 import jwt
 from django.conf import settings
 
 
-class AuthenticationSerializer(TokenObtainPairSerializer):
+class AuthenticationSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
 
