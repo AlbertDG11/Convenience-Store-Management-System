@@ -1,13 +1,13 @@
 from rest_framework import serializers
-from .models import Membership, CustomerAddress
+from .models import Membership, MemberAddress
 
 class CustomerAddressSerializer(serializers.ModelSerializer):
     """
     Serializer for CustomerAddress
     """
     class Meta:
-        model = CustomerAddress
-        fields = ['id', 'membership', 'street', 'city', 'province', 'postal_code', 'country']
+        model = MemberAddress
+        fields = ['id', 'membership', 'street_address', 'city', 'province', 'postal_code']
 
 class MembershipSerializer(serializers.ModelSerializer):
     """
@@ -16,6 +16,6 @@ class MembershipSerializer(serializers.ModelSerializer):
     address = CustomerAddressSerializer(many=True, read_only=True)
     class Meta:
         model = Membership
-        fields = ['id', 'name', 'address', 'email', 'phone']
+        fields = ['membership_id', 'name', 'address', 'email', 'phone_number']
 
 

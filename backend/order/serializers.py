@@ -51,7 +51,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             # Create the Order record
-            order_instance = Order.objects.create(**validated_data)
+            order_instance = Orders.objects.create(**validated_data)
             for item in items:
                 pro = item['product']
                 quantity = item['quantity']

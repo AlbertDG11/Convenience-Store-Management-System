@@ -50,6 +50,8 @@ export default function App() {
           <Route path='/inventory'  element={<Inventory/>} />
           <Route path='/profile' element={<Profile/>}/>
           <Route path='/subordinate' element={<Subordinate/>}/>
+          <Route path='/supplier' element={<Supplier />} />
+          <Route path='/product'  element={<Product/>} />
           {/* Orders */}
           <Route path="/orders"               element={<OrderList />} />
           <Route path="/orders/new"           element={<OrderForm />} />
