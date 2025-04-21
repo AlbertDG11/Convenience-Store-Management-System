@@ -259,7 +259,7 @@ function EditProfile({ employeeId, onSave, onCancel }) {
 
 function Profile(props) {
   const [mode, setMode] = useState('view'); // 'view' | 'edit'
-  const employeeId = 6;
+  const employeeId = 3;
 
   return (
     <div>
