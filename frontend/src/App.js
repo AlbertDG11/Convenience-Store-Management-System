@@ -28,7 +28,8 @@ export default function App() {
   return (
     <Routes>
       {/* Redirect plain domain → /customers */}
-      <Route path="/" element={<Navigate to="/customers" replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path='/login' element={<Login />}/>
 
       {/* Private area (requires login) */}
       <Route element={<ProtectedRoute />}>
@@ -41,8 +42,7 @@ export default function App() {
 
           {/* TODO: future pages
           … etc. */}
-          <Route path='/' element={<h1>Home</h1>}/>
-          <Route path='/login' element={<Login />}/>
+
           <Route path='/employee' element={<Employee/>}/>
           <Route path='/contact' element={<EmployeeContact/>}/>
           <Route path='/report/sales' element={<SalesReportDashboard/>}/>
@@ -64,8 +64,8 @@ export default function App() {
         </Route>
       </Route>
 
-      {/* Fallback → /customers */}
-      <Route path="*" element={<Navigate to="/customers" replace />} />
+      {/* Fallback → /login */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }
