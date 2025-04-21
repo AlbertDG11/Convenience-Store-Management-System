@@ -71,7 +71,7 @@ function ShowProfile({ employeeId, onEdit }) {
     <div>
       {employee && (
         <Stack spacing={2}>
-          <Typography><strong>Id:</strong>{employee.employee_id}</Typography>
+          <Typography><strong>Employee Id:</strong> {employee.employee_id}</Typography>
           <Typography><strong>Name:</strong> {employee.name}</Typography>
           <Typography><strong>Email:</strong> {employee.email}</Typography>
           <Typography><strong>Phone:</strong> {employee.phone_number}</Typography>
@@ -92,7 +92,7 @@ function ShowProfile({ employeeId, onEdit }) {
           )}
           {employee.management && employee.management.length > 0 && (
             <Typography>
-              <strong>Supervisor:</strong>
+              <strong>Supervisor: </strong>
               {employee.management.map((m, idx) => (
                 <div key={idx}>
                   ID: {m.employee_id}<br />

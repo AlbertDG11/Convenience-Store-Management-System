@@ -12,7 +12,7 @@ import ProtectedLayout  from './layouts/ProtectedLayout';
 import CustomerList   from './pages/customers/CustomerList';
 import CustomerForm   from './pages/customers/CustomerForm';
 
-import { Login, Employee, EmployeeContact, SalesReportDashboard, Profile, Subordinate } from './pages';
+import { Login, EmployeeContact, SalesReportDashboard, Profile, Subordinate } from './pages';
 import Supplier from './pages/supplier';
 import Product from './pages/product';
 import PurchaseReportDashboard from './pages/purchase_report';

@@ -9,6 +9,8 @@ from django.core.cache import cache
 
 # Create your views here.
 class EmployeeView(APIView):
+    use_cache = False
+
     # Query employees
     def get(self, request):
         user_info = get_user_from_token(request)
@@ -16,15 +18,16 @@ class EmployeeView(APIView):
         if not user_info:
             return Response({'detail': 'Unauthorized'}, status=401)
 
-        key = "cached_employees_full_info"
-        # try:
-        #     data = cache.get(key)
-        #     print("using cache")
-        #     if data is not None:
-        #         print("using cache")
-        #         return Response(data, status=status.HTTP_200_OK)
-        # except redis.exceptions.ConnectionError:
-        #     print("Redis not available, using database fallback.")
+        if EmployeeView.use_cache:
+            key = "cached_employees_full_info"
+            try:
+                data = cache.get(key)
+                print("using cache")
+                if data is not None:
+                    print("using cache")
+                    return Response(data, status=status.HTTP_200_OK)
+            except redis.exceptions.ConnectionError:
+                print("Redis not available, using database fallback.")
 
         employee_objs = Employee.objects.all()
         employees = []
@@ -60,10 +63,11 @@ class EmployeeView(APIView):
 
         serialiser = WholeEmployeeSerializer(employees, many=True)
 
-        # try:
-        #     cache.set(key, serialiser.data, timeout=60 * 5)
-        # except redis.exceptions.ConnectionError:
-        #     print("Redis not available when writing cache.")
+        if EmployeeView.use_cache:
+            try:
+                cache.set(key, serialiser.data, timeout=60 * 5)
+            except redis.exceptions.ConnectionError:
+                print("Redis not available when writing cache.")
 
         return Response(serialiser.data, status=status.HTTP_200_OK)
     
@@ -91,7 +95,7 @@ class EmployeeView(APIView):
             supervisor = valid_data.get('supervisor')
             if supervisor:
                 try:
-                    manager = Manager.objects.get(employee=supervisor)
+                    #Manager.objects.get(employee=supervisor)
                     supervisor_obj = Employee.objects.get(employee_id=supervisor)
                     employee.supervisor = supervisor_obj
                     employee.save()
@@ -100,7 +104,7 @@ class EmployeeView(APIView):
                     warning = "The supervisor is not a manager"
 
             for address in valid_data['addresses']:
-                addressObj = EmployeeAddress.objects.create(
+                EmployeeAddress.objects.create(
                     employee=employee,
                     province=address['province'],
                     city=address['city'],
@@ -125,17 +129,18 @@ class EmployeeView(APIView):
                     employee=employee,
                     management_level=valid_data.get('management_level')
                 )
-            # try:
-            #     cache.delete("cached_employees_full_info")
-            # except redis.exceptions.ConnectionError:
-            #     print("Redis not available, using database fallback.")
+
+            if EmployeeView.use_cache:
+                try:
+                    cache.delete("cached_employees_full_info")
+                except redis.exceptions.ConnectionError:
+                    print("Redis not available, using database fallback.")
             
             if not exists_warning:
                 return Response({"status": "ok"}, status=status.HTTP_200_OK)
             else:
                 return Response({"warnings": warning}, status=status.HTTP_200_OK)
         else:
-            print(serialiser.errors)
             return Response({"error": "The data is not full or valid"}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -225,7 +230,7 @@ class EmployeeDetailView(APIView):
             supervisor = valid_data.get('supervisor')
             if supervisor:
                 try:
-                    manager = Manager.objects.get(employee=supervisor)
+                    #manager = Manager.objects.get(employee=supervisor)
                     supervisor_obj = Employee.objects.get(employee_id=supervisor)
                     employee.supervisor = supervisor_obj
                 except Manager.DoesNotExist:
@@ -260,10 +265,8 @@ class EmployeeDetailView(APIView):
                         post_code=address["post_code"],
                     )
                     updated_addresses_ids.add(addressn.id)
-                    print(addressn.employee_id)
             for address in existing_addresses:
                 if address.id not in updated_addresses_ids:
-                    print(address.id)
                     address.delete()
             
             if current_role != employee.role:

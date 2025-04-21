@@ -577,7 +577,6 @@ function Subordinate(props) {
     )
       .then(res => res.json())
       .then((data) => {setSubordinates(data);setEmployees(data);
-        const user = JSON.parse(localStorage.getItem('user'));
       })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
