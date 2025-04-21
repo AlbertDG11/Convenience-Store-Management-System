@@ -24,8 +24,9 @@ function AddSupplierDialog({ open, onClose, onSave }) {
 
   const handleSubmit = () => {
     const payload = { ...form, addresses };
+    const token = localStorage.getItem('token');
     fetch(`${BASE_URL}/`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     })
     .then(res => res.json())
     .then(data => { onSave(data); onClose(); })
@@ -101,8 +102,9 @@ function UpdateSupplierDialog({ open, supplier, onClose, onSave }) {
       phone_number: form.phone_number,
       addresses: form.addresses
     };
+    const token = localStorage.getItem('token');
     fetch(`${BASE_URL}/${form.supplier_id}/`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     })
     .then(res=>res.json())
     .then(data=> { onSave(data); onClose(); })

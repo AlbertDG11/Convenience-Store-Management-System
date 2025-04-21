@@ -3,13 +3,15 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-from backend.employee.permissions import IsPurchasePersonOrManager
+from backend.authentication.mixins import RoleRequiredMixin
 from .models import Supplier
 from .serializer import SupplierSerializer
 from .models import SupplierAddress
 from .serializer import SupplierAddressSerializer
 
 class SupplierViewSet(viewsets.ModelViewSet):
+    
+    allowed_roles = [1,2]
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
     
@@ -54,5 +56,6 @@ class SupplierViewSet(viewsets.ModelViewSet):
     #    return Response(status=status.HTTP_204_NO_CONTENT)
 
 class SupplieraddressViewSet(viewsets.ModelViewSet):
+    allowed_roles = [1,2]
     queryset = SupplierAddress.objects.all()
     serializer_class = SupplierAddressSerializer
