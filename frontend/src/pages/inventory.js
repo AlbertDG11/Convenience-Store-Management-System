@@ -21,9 +21,12 @@ function AddInventoryDialog({ open, onClose, onSave }) {
   };
 
   const handleSubmit = () => {
+    const token = localStorage.getItem('token');
     fetch(`${BASE_URL}/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': "Bearer" + token
+       },
       body: JSON.stringify(form)
     })
       .then(res => res.json())
