@@ -27,45 +27,53 @@ import PurchaseForm   from './pages/purchases/PurchaseForm';
 export default function App() {
   return (
     <Routes>
-      {/* Redirect plain domain → /customers */}
+      {/* Public routes */}
       <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path='/login' element={<Login />}/>
+      <Route path="/login" element={<Login />} />
 
-      {/* Private area (requires login) */}
+      {/* Protected routes */}
       <Route element={<ProtectedRoute />}>
         <Route element={<ProtectedLayout />}>
 
+          {/* After login, go to Profile */}
+          <Route index element={<Navigate to="/profile" replace />} />
+          <Route path="/profile"       element={<Profile />} />
+
           {/* Customers */}
-          <Route path="/customers"            element={<CustomerList />} />
-          <Route path="/customers/new"        element={<CustomerForm />} />
-          <Route path="/customers/:id/edit"   element={<CustomerForm />} />
+          <Route path="/customers"     element={<CustomerList />} />
+          <Route path="/customers/new" element={<CustomerForm />} />
+          <Route path="/customers/:id/edit" element={<CustomerForm />} />
 
-          {/* TODO: future pages
-          … etc. */}
-
-          <Route path='/employee' element={<Employee/>}/>
-          <Route path='/contact' element={<EmployeeContact/>}/>
-          <Route path='/report/sales' element={<SalesReportDashboard/>}/>
-          <Route path="/report/purchase" element={<PurchaseReportDashboard />} />
-          <Route path='/inventory'  element={<Inventory/>} />
-          <Route path='/profile' element={<Profile/>}/>
-          <Route path='/subordinate' element={<Subordinate/>}/>
-          <Route path='/supplier' element={<Supplier />} />
-          <Route path='/product'  element={<Product/>} />
           {/* Orders */}
-          <Route path="/orders"               element={<OrderList />} />
-          <Route path="/orders/new"           element={<OrderForm />} />
-          <Route path="/orders/:id/edit"      element={<OrderForm />} />
+          <Route path="/orders"        element={<OrderList />} />
+          <Route path="/orders/new"    element={<OrderForm />} />
+          <Route path="/orders/:id/edit" element={<OrderForm />} />
 
           {/* Purchases */}
-          <Route path="/purchases"            element={<PurchaseList />} />
-          <Route path="/purchases/new"        element={<PurchaseForm />} />
-          <Route path="/purchases/:id/edit"   element={<PurchaseForm />} />
+          <Route path="/purchases"     element={<PurchaseList />} />
+          <Route path="/purchases/new" element={<PurchaseForm />} />
+          <Route path="/purchases/:id/edit" element={<PurchaseForm />} />
+
+          {/* Suppliers & Products */}
+          <Route path="/supplier"      element={<Supplier />} />
+          <Route path="/product"       element={<Product />} />
+
+          {/* Employees */}
+          <Route path="/employee"      element={<Employee />} />
+          <Route path="/contact"       element={<EmployeeContact />} />
+
+          {/* Reports */}
+          <Route path="/report/sales"    element={<SalesReportDashboard />} />
+          <Route path="/report/purchase" element={<PurchaseReportDashboard />} />
+
+          {/* Inventory & Subordinate */}
+          <Route path="/inventory"     element={<Inventory />} />
+          <Route path="/subordinate"   element={<Subordinate />} />
         </Route>
       </Route>
 
-      {/* Fallback → /login */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      {/* Fallback → profile */}
+      <Route path="*" element={<Navigate to="/profile" replace />} />
     </Routes>
   );
 }
