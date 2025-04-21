@@ -10,6 +10,14 @@ const api = axios.create({
   withCredentials: false, // change to false if you only use token auth
 });
 
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+});
+
 /* ---------- Auth (optional) ---------- */
 export const login    = creds   => api.post('auth/login/',    creds);
 export const register = payload => api.post('auth/register/', payload);
@@ -38,8 +46,7 @@ export const fetchOrders        = ()            => api.get('order/orders/');
 export const fetchOrderById     = id            => api.get(`order/orders/${id}/`);
 export const createOrder        = data          => api.post('order/orders/', data);
 export const updateOrder        = (id, data)    => api.put(`order/orders/${id}/`, data);
-export const deleteOrder        = id            => api.delete(`order/orders/${id}/`);
-
+export const cancelOrder        = id            => api.post(`order/orders/${id}/cancel/`);
 /* ---------- Purchase ---------- */
 export const fetchPurchases     = ()            => api.get('purchase/purchases/');
 export const fetchPurchaseById  = id            => api.get(`purchase/purchases/${id}/`);
@@ -47,4 +54,7 @@ export const createPurchase     = data          => api.post('purchase/purchases/
 export const updatePurchase     = (id, data)    => api.put(`purchase/purchases/${id}/`, data);
 export const deletePurchase     = id            => api.delete(`purchase/purchases/${id}/`);
 
+
+
+export const fetchProducts      = ()         => api.get('product/products/');
 export default api;

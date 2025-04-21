@@ -3,6 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  Card,
+  CardHeader,
+  CardContent,
+  Avatar,
   Table,
   TableBody,
   TableCell,
@@ -17,8 +21,11 @@ import {
   DialogTitle,
   DialogContent,
   List,
-  ListItem
+  ListItem,
+  Box
 } from '@mui/material';
+import GroupIcon from '@mui/icons-material/Group';
+import AddIcon from '@mui/icons-material/Add';
 import {
   fetchCustomers,
   deleteCustomer,
@@ -82,60 +89,69 @@ export default function CustomerList() {
   }
 
   return (
-    <>
-      <Button variant="contained" onClick={() => navigate('/customers/new')}>
-        Add Customer
-      </Button>
-
-      <TableContainer component={Paper} sx={{ mt: 2 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Addresses</TableCell>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {rows.map(row => (
-              <TableRow key={row.membership_id} hover>
-                {/* Show Addresses button on the left */}
-                <TableCell>
-                  <Button
-                    size="small"
-                    onClick={() => handleViewAddresses(row.membership_id, row.name)}
-                  >
-                    Show Addresses
-                  </Button>
-                </TableCell>
-                <TableCell>{row.membership_id}</TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.phone_number}</TableCell>
-                <TableCell>{row.email}</TableCell>
-                <TableCell align="right">
-                  <Button
-                    size="small"
-                    onClick={() => navigate(`/customers/${row.membership_id}/edit`)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    size="small"
-                    color="error"
-                    onClick={() => handleDelete(row.membership_id)}
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
+    <Card sx={{ mx: 2, my: 4, boxShadow: 3 }}>
+      <CardHeader
+        avatar={<Avatar><GroupIcon /></Avatar>}
+        title="Customer List"
+        action={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/customers/new')}
+          >
+            Add
+          </Button>
+        }
+      />
+      <CardContent>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Phone</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell align="center">Addresses</TableCell>
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {rows.map(row => (
+                <TableRow key={row.membership_id} hover>
+                  <TableCell>{row.membership_id}</TableCell>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.phone_number}</TableCell>
+                  <TableCell>{row.email}</TableCell>
+                  <TableCell align="center">
+                    <Button
+                      size="small"
+                      onClick={() => handleViewAddresses(row.membership_id, row.name)}
+                    >
+                      Show
+                    </Button>
+                  </TableCell>
+                  <TableCell align="right">
+                    <Button
+                      size="small"
+                      onClick={() => navigate(`/customers/${row.membership_id}/edit`)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="small"
+                      color="error"
+                      onClick={() => handleDelete(row.membership_id)}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </CardContent>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
         <DialogTitle>{`Addresses for ${selectedName}`}</DialogTitle>
@@ -156,6 +172,6 @@ export default function CustomerList() {
           </Button>
         </DialogContent>
       </Dialog>
-    </>
+    </Card>
   );
 }

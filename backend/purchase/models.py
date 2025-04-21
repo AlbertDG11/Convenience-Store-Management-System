@@ -1,6 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 
+from backend.employee.models import PurchasePerson
 from backend.product.models import Product
 from backend.supplier.models import Supplier
 
@@ -9,10 +10,13 @@ from backend.supplier.models import Supplier
 
 class InventoryPurchase(models.Model):
     purchase_id = models.AutoField(primary_key=True)
-    purchase_time = models.DateTimeField()
+    purchase_time = models.DateTimeField(auto_now_add=True)
     total_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     supplier = models.ForeignKey(
         Supplier, on_delete=models.SET_NULL, null=True, blank=True, db_column='Supplier_id'
+    )
+    employee = models.ForeignKey(
+        PurchasePerson, on_delete=models.SET_NULL, null=True, blank=True, db_column='Employee_id'
     )
 
     class Meta:

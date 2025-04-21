@@ -15,8 +15,7 @@ class MembershipViewSet(viewsets.ModelViewSet):
     """
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
-    # permission_classes = [IsAuthenticated, IsSalesPersonOrManager]
-    # # permission_classes = [AllowAny]
+
 
 
 class CustomerAddressViewSet(viewsets.ModelViewSet):
@@ -26,8 +25,7 @@ class CustomerAddressViewSet(viewsets.ModelViewSet):
     """
     queryset = MemberAddress.objects.all()
     serializer_class = CustomerAddressSerializer
-    # permission_classes = [IsAuthenticated, IsSalesPersonOrManager]
-    # # permission_classes = [AllowAny]
+
 
     def get_queryset(self):
         """
