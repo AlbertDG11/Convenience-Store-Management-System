@@ -36,7 +36,7 @@ export default function App() {
         <Route element={<ProtectedLayout />}>
 
           {/* After login, go to Profile */}
-          <Route index element={<Navigate to="/profile" replace />} />
+          {/*<Route index element={<Navigate to="/profile" replace />} />*/}
           <Route path="/profile"       element={<ProtectedRoute><Profile/></ProtectedRoute>} />
 
           {/* Customers */}

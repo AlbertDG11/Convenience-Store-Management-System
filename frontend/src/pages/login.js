@@ -37,7 +37,19 @@ export default function Login() {
 
 
       toast.success('Login successful');
-      navigate('/profile');
+      
+      const role = data.user.role;
+
+      if (role === 0) {
+        navigate('/orders');
+      } else if (role === 1) {
+        navigate('/purchases');
+      } else if (role === 2) {
+        navigate('/report/sales');
+      } else {
+        navigate('/profile');
+      }
+      
     } catch (error) {
       toast.error(error.message || 'Login failed');
     }
