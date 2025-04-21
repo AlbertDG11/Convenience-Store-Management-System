@@ -13,7 +13,7 @@ class MembershipSerializer(serializers.ModelSerializer):
     """
     Serializer for membership
     """
-    address = CustomerAddressSerializer(many=True, read_only=True)
+    address = CustomerAddressSerializer(source='memberaddress_set', many=True, read_only=True)
     class Meta:
         model = Membership
         fields = ['membership_id', 'name', 'address', 'email', 'phone_number']

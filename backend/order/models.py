@@ -7,7 +7,7 @@ from backend.product.models import Product
 
 class Orders(models.Model):
     order_id = models.AutoField(primary_key=True)
-    create_time = models.DateTimeField()
+    create_time = models.DateTimeField(auto_now_add=True)
     delivery_address = models.CharField(max_length=200, null=True, blank=True)
     payment_method = models.CharField(max_length=50, null=True, blank=True)
     order_status = models.CharField(max_length=20, null=True, blank=True)
