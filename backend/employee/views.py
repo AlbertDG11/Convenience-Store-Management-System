@@ -97,12 +97,12 @@ class EmployeeView(APIView):
                 )
             
             if not exists_warning:
-                return Response(status=status.HTTP_200_OK)
+                return Response({"status": "ok"}, status=status.HTTP_200_OK)
             else:
                 return Response({"warnings": warning}, status=status.HTTP_200_OK)
         else:
             print(serialiser.errors)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "The data is not full or valid"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class EmployeeDetailView(APIView):
@@ -154,7 +154,6 @@ class EmployeeDetailView(APIView):
         elif employee.role == 2:
             manager = Manager.objects.get(employee=employee)
             employee_info["management_level"] = manager.management_level
-            #employee_info['management'] = list(employee.subordinates.values('employee_id', 'name'))
       
         serialiser = WholeEmployeeSerializer(employee_info)
 
@@ -210,7 +209,6 @@ class EmployeeDetailView(APIView):
                     old_address.post_code = address["post_code"]
                     old_address.save()
                 else:
-                    print("hello")
                     addressn = EmployeeAddress.objects.create(
                         employee=employee,
                         province=address["province"],
@@ -257,12 +255,11 @@ class EmployeeDetailView(APIView):
                 salesperson.save()
             
             if not exists_warning:
-                return Response(status=status.HTTP_200_OK)
+                return Response({"status": "ok"}, status=status.HTTP_200_OK)
             else:
-                return Response({"warnings": warning}, status=status.HTTP_200_OK)
+                return Response({"status": "ok", "warnings": warning}, status=status.HTTP_200_OK)
         else:
-            print(serialiser.errors)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({"err": "error"}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, employee_id):
         try:

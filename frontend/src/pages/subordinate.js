@@ -12,7 +12,7 @@ function getRole(roleCode) {
         role = "Salesperson"
     } 
     else if (roleCode === 1) {
-        role = "Purchaseperson"
+        role = "Purchase Person"
     }   
     else if (roleCode === 2) {
         role = "Manager"
@@ -24,7 +24,7 @@ function getRole(roleCode) {
 }
 
 
-function AddEmployeeDialog({ open, onClose, onSave }) {
+function AddEmployeeDialog({ open, onClose, onSave, managerId}) {
   const [form, setForm] = useState({});
   const [addresses, setAddresses] = useState([
     { province: '', city: '', street_address: '', post_code: '' }
@@ -52,6 +52,7 @@ function AddEmployeeDialog({ open, onClose, onSave }) {
   const handleSubmit = () => {
     const payload = {
       ...form,
+      supervisor: managerId,
       addresses: addresses,
     };
 
@@ -69,7 +70,8 @@ function AddEmployeeDialog({ open, onClose, onSave }) {
     })
     .then(data => {
       alert("Add Successfully");
-      onSave(payload);  // 或 data，看后端返回结构
+      onSave(payload);
+      setForm(null)
       onClose();
     })
     .catch(err => {
@@ -87,20 +89,7 @@ function AddEmployeeDialog({ open, onClose, onSave }) {
           <TextField fullWidth label="Email" value={form.email || ''} onChange={handleChange('email')} />
           <TextField fullWidth label="Phone" value={form.phone_number || ''} onChange={handleChange('phone_number')} />
           <TextField fullWidth label="Salary" value={form.salary || ''} onChange={handleChange('salary')} />
-          <TextField fullWidth label="Supervisor" value={form.supervisor || ''} onChange={handleChange('supervisor')} />
-          <FormControl fullWidth>
-            <InputLabel>Role</InputLabel>
-            <Select
-              value={form.role ?? ''}
-              label="Role"
-              onChange={handleChange('role')}
-            >
-              <MenuItem value={0}>Salesperson</MenuItem>
-              <MenuItem value={1}>Purchase</MenuItem>
-              <MenuItem value={2}>Manager</MenuItem>
-            </Select>
-          </FormControl>
-
+          <TextField fullWidth label="Password" type="password" value={form.login_password || ''} onChange={handleChange('login_password')} />
           {addresses.map((addr, index) => (
             <Box key={index} sx={{ border: '1px solid #ccc', p: 2, borderRadius: 2 }}>
               <Typography variant="subtitle2">Address {index + 1}</Typography>
@@ -125,7 +114,18 @@ function AddEmployeeDialog({ open, onClose, onSave }) {
               sx={{ mt: 2 }}
             />
           )}
-
+          <FormControl fullWidth>
+            <InputLabel>Role</InputLabel>
+            <Select
+              value={form.role ?? ''}
+              label="Role"
+              onChange={handleChange('role')}
+            >
+              <MenuItem value={0}>Salesperson</MenuItem>
+              <MenuItem value={1}>Purchase Person</MenuItem>
+              <MenuItem value={2}>Manager</MenuItem>
+            </Select>
+          </FormControl>
           {form.role === 1 && (
             <TextField
               fullWidth
@@ -355,14 +355,26 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     })
-    .then(res => res.json())
-    .then(data => {
-      alert('Update Successfully');
+    .then(async res => {
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : null;
+    
+      if (!res.ok) {
+        throw new Error(data?.error || 'Update failed');
+      }
+    
+      if (data?.warning) {
+        alert("Updated with warning: " + data.warning);
+      } else {
+        alert("Update Successful");
+      }
+    
       onSave(form);
       onClose();
     })
     .catch(err => {
-      alert('Fail to Update');
+      console.error(err);
+      alert("Error: " + err.message);
     });
   };
 
@@ -384,7 +396,7 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
             onChange={handleChange('role')}
           >
             <MenuItem value={0}>Salesperson</MenuItem>
-            <MenuItem value={1}>Purchase</MenuItem>
+            <MenuItem value={1}>Purchase Person</MenuItem>
             <MenuItem value={2}>Manager</MenuItem>
           </Select>
         </FormControl>
@@ -511,7 +523,6 @@ function Subordinate(props) {
   const [editEmployee, setEditEmployee] = useState(null);
   const [addEmployee, setAddEmployee] = useState(null);
   const [addSubordinate, SetAddSubordinate] = useState(null);
-  const [addSubordinateManagerId, setAddSubordinateManagerId] = useState(null);
   const [filters, setFilters] = useState({
     name: '',
     phone: '',
@@ -536,6 +547,11 @@ function Subordinate(props) {
     if (managerId) loadSubordinates();
   }, [managerId]);
 
+  const handleAddEmployeeSave = () => {
+    loadSubordinates();
+    setAddEmployee(null);
+  };
+
   const handleAddSave = () => {
     loadSubordinates();
     SetAddSubordinate(null);
@@ -550,13 +566,14 @@ function Subordinate(props) {
   const filteredEmployees = !filterActive ? employees : employees.filter(emp => {
     const nameMatch = filters.name === '' || emp.name.toLowerCase().includes(filters.name.toLowerCase());
     const phoneMatch = filters.phone === '' || emp.phone_number.includes(filters.phone);
+    const roleMatch = filters.role === '' || emp.role === filters.role;
     const minSalaryMatch = filters.minSalary === '' || emp.salary >= parseFloat(filters.minSalary);
     const maxSalaryMatch = filters.maxSalary === '' || emp.salary <= parseFloat(filters.maxSalary);
-    return nameMatch && phoneMatch && minSalaryMatch && maxSalaryMatch;
+    return nameMatch && phoneMatch && roleMatch && minSalaryMatch && maxSalaryMatch;
   });
 
   const handleConfirmDelete = () => {
-    fetch(`http://localhost:8000/subordinate/${employeeToDelete.employee_id}/`, {
+    fetch(`http://localhost:8000/employee/${employeeToDelete.employee_id}/`, {
       method: 'DELETE',
     })
       .then((res) => {
@@ -591,7 +608,7 @@ function Subordinate(props) {
         }}
         >
 
-        <Typography variant="h3" sx={{ mt: 2, mb: 4, fontWeight: 'bold' }} gutterBottom align="center">Employee List</Typography>
+        <Typography variant="h3" sx={{ mt: 2, mb: 4, fontWeight: 'bold' }} gutterBottom align="center">Subordinate List</Typography>
         
         <Grid
           container
@@ -615,6 +632,21 @@ function Subordinate(props) {
               value={filters.phone}
               onChange={(e) => setFilters({ ...filters, phone: e.target.value })}
             />
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <FormControl fullWidth size="small" sx={{ minWidth: 200 }}>
+              <InputLabel>Role</InputLabel>
+              <Select
+                value={filters.role}
+                label="Role"
+                onChange={(e) => setFilters({ ...filters, role: e.target.value })}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value={0}>Salesperson</MenuItem>
+                <MenuItem value={1}>Purchase Person</MenuItem>
+                <MenuItem value={2}>Manager</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={12} sm={6} md={2}>
             <TextField
@@ -702,9 +734,10 @@ function Subordinate(props) {
     </Box>
     
     <AddEmployeeDialog
+      managerId={managerId}
       open={!!addEmployee}
       onClose={() => setAddEmployee(null)}
-      onSave={(newEmp) => setEmployees([...employees, newEmp])}
+      onSave={handleAddEmployeeSave}
     />
 
     <AddSubordinateDialog
