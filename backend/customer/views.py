@@ -1,18 +1,19 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 
+from backend.authentication.mixins import RoleRequiredMixin
 from backend.customer.models import Membership, MemberAddress
 from backend.customer.serializers import MembershipSerializer, CustomerAddressSerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from backend.employee.permissions import IsSalesPersonOrManager
+
 
 # Create your views here.
 
-class MembershipViewSet(viewsets.ModelViewSet):
+class MembershipViewSet(RoleRequiredMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows memberships to be viewed or edited.
     Only salesperson and manager are allowed to view the customer address.
     """
+    allowed_roles = [0,2]
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
 
@@ -23,6 +24,7 @@ class CustomerAddressViewSet(viewsets.ModelViewSet):
     API endpoint that allows memberships to be viewed or edited.
     Only salesperson and manager are allowed to view the customer address.
     """
+    allowed_roles = [0,2]
     queryset = MemberAddress.objects.all()
     serializer_class = CustomerAddressSerializer
 

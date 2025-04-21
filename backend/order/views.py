@@ -2,10 +2,10 @@ from django.db import transaction
 from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+
 from rest_framework.response import Response
 
-from backend.employee.permissions import IsSalesPersonOrManager
+from backend.authentication.mixins import RoleRequiredMixin
 from backend.order.models import Orders
 from backend.order.serializers import OrderSerializer
 from backend.product.models import Inventory
@@ -13,11 +13,12 @@ from backend.product.models import Inventory
 
 # Create your views here.
 
-class OrderViewSet(viewsets.ModelViewSet):
+class OrderViewSet(RoleRequiredMixin, viewsets.ModelViewSet):
     """
     ViewSet for Order Model
     """
 
+    allowed_roles = [0,2]
     queryset = Orders.objects.all()
     serializer_class = OrderSerializer
 

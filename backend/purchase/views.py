@@ -16,6 +16,7 @@ class InventoryPurchaseViewSet(viewsets.ModelViewSet):
     ViewSet for InventoryPurchase and Item Model
     """
 
+    allowed_roles = [1,2]
     queryset = InventoryPurchase.objects.all()
     serializer_class = InventoryPurchaseSerializer
 
