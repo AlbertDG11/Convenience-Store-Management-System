@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, Stack, Dialog,
   DialogTitle, DialogContent, DialogActions, TextField, Grid,
-  Select, MenuItem, InputLabel, FormControl} from '@mui/material';
+  Select, MenuItem, InputLabel, FormControl 
+} from '@mui/material';
 
 
 function getRole(roleCode) {
@@ -144,6 +145,45 @@ function AddEmployeeDialog({ open, onClose, onSave }) {
               sx={{ mt: 2 }}
             />
           )}
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button variant="contained" onClick={handleSubmit}>Save</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+function AddSubordinateDialog({ open, managerId, onClose, onSave }) {
+  const [subordinateId, setSubordinateId] = useState('');
+
+  const handleSubmit = () => {
+    fetch(`http://localhost:8000/employee/subordinate/${managerId}/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subordinate_id: parseInt(subordinateId, 10) }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Server error');
+        return data;
+      })
+      .then(() => {
+        onSave();
+      })
+      .catch((err) => {
+        console.error(err);
+        alert('Failed to add subordinate: ' + err.message);
+      });
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Add Subordinate Relationship</DialogTitle>
+      <DialogContent>
+        <Stack spacing={2}>
+          <TextField fullWidth label="Subordinate Id" value={subordinateId} onChange={e => setSubordinateId(e.target.value)} />
         </Stack>
       </DialogContent>
       <DialogActions>
@@ -405,79 +445,6 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
 }
 
 
-// function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
-//   const [form, setForm] = useState({});
-//   const [employee, setEmployee] = useState(null);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState(null);
-
-//   useEffect(() => {
-//     if (open && employeeId) {
-//       setLoading(true);
-//       fetch(`http://localhost:8000/employee/${employeeId}/`)
-//         .then((res) => {
-//           if (!res.ok) throw new Error("Failed to fetch employee details");
-//           return res.json();
-//         })
-//         .then((data) => {
-//           setEmployee(data);
-//           setError(null);
-//         })
-//         .catch((err) => {
-//           console.error(err);
-//           setError("Unable to load employee details");
-//         })
-//         .finally(() => {
-//           setLoading(false);
-//         });
-//     } else {
-//       setEmployee(null); // reset when closed
-//     }
-//   }, [open, employeeId]);
-
-//   // useEffect(() => {
-//   //   if (employee) setForm(employee);
-//   // }, [employee]);
-
-//   const handleChange = (field) => (event) => {
-//     setForm({ ...form, [field]: event.target.value });
-//   };
-
-//   const handleSubmit = () => {
-//     fetch(`http://localhost:8000/api/employee/update/${form.employee_id}/`, {
-//       method: 'PUT',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify(form),
-//     })
-//     .then(res => res.json())
-//     .then(data => {
-//       alert('Update Successfully');
-//       onSave(form);
-//       onClose();
-//     })
-//     .catch(err => {
-//       alert('Fail to Update');
-//     });
-//   };
-
-//   return (
-//     <Dialog open={open} onClose={onClose}>
-//       <DialogTitle>Update Employee</DialogTitle>
-//       <DialogContent>
-//         <TextField fullWidth label="Name" value={form.name || ''} onChange={handleChange('name')} sx={{ mt: 2 }} />
-//         <TextField fullWidth label="Email" value={form.email || ''} onChange={handleChange('email')} sx={{ mt: 2 }} />
-//         <TextField fullWidth label="Phone" value={form.phone_number || ''} onChange={handleChange('phone_number')} sx={{ mt: 2 }} />
-//         <TextField fullWidth label="Salary" type="number" value={form.salary || ''} onChange={handleChange('salary')} sx={{ mt: 2 }} />
-//       </DialogContent>
-//       <DialogActions>
-//         <Button onClick={onClose}>Cancel</Button>
-//         <Button variant="contained" onClick={handleSubmit}>Save</Button>
-//       </DialogActions>
-//     </Dialog>
-//   );
-// }
-
-
 function DeleteEmployeeDialog({ open, employee, onClose, onConfirm }) {
   return (
     <Dialog open={open} onClose={onClose}>
@@ -497,14 +464,54 @@ function DeleteEmployeeDialog({ open, employee, onClose, onConfirm }) {
   );
 }
 
+// Dialog to confirm and delete a subordinate
+function DeleteSubordinateDialog({ open, managerId, subordinate, onClose, onConfirm }) {
+  const handleDelete = () => {
+    fetch(`http://localhost:8000/employee/subordinate/${managerId}/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ subordinate_id: parseInt(subordinate.employee_id, 10) }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Delete failed');
+        onConfirm();
+      })
+      .catch((err) => {
+        console.error(err);
+        alert('Failed to delete subordinate: ' + err.message);
+      });
+  };
+  
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Confirm Deletion</DialogTitle>
+      <DialogContent>
+        <Typography>
+          Are you sure you want to delete the relationship with "{subordinate?.name}"?
+        </Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleDelete} color="error" variant="contained">
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
 
-function Employee(props) {
+
+function Subordinate(props) {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [detailEmployee, setDetailEmployee] = useState(null);
   const [editEmployee, setEditEmployee] = useState(null);
   const [addEmployee, setAddEmployee] = useState(null);
+  const [addSubordinate, SetAddSubordinate] = useState(null);
+  const [addSubordinateManagerId, setAddSubordinateManagerId] = useState(null);
   const [filters, setFilters] = useState({
     name: '',
     phone: '',
@@ -512,25 +519,31 @@ function Employee(props) {
     maxSalary: '',
   });
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
-  
+  const [subordinateToDelete, setSubordinateToDelete] = useState(null);
+  const [subordinates, setSubordinates] = useState([]);
+  const managerId = 3;
+
+  const loadSubordinates = () => {
+    setLoading(true);
+    fetch(`http://localhost:8000/employee/subordinate/${managerId}/`)
+      .then(res => res.json())
+      .then((data) => {setSubordinates(data);setEmployees(data);})
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  };
+
   useEffect(() => {
-      fetch('http://localhost:8000/employee/')
-      .then((response) => {
-      if (!response.ok) {
-          throw new Error('Network response was not OK');
-      }
-      return response.json();
-      })
-      .then((data) => {
-          console.log("Received:", data);
-          setEmployees(data);
-          setLoading(false);
-      })
-      .catch((err) => {
-      setError(err.message);
-      setLoading(false);
-      });
-  }, []);
+    if (managerId) loadSubordinates();
+  }, [managerId]);
+
+  const handleAddSave = () => {
+    loadSubordinates();
+    SetAddSubordinate(null);
+  };
+  const handleDeleteSubordinateConfirm = () => {
+    loadSubordinates();
+    setSubordinateToDelete(null);
+  };
 
   const [filterActive, setFilterActive] = useState(false);
 
@@ -543,7 +556,7 @@ function Employee(props) {
   });
 
   const handleConfirmDelete = () => {
-    fetch(`http://localhost:8000/employee/${employeeToDelete.employee_id}/`, {
+    fetch(`http://localhost:8000/subordinate/${employeeToDelete.employee_id}/`, {
       method: 'DELETE',
     })
       .then((res) => {
@@ -651,10 +664,10 @@ function Employee(props) {
           <Table>
             <TableHead>
                 <TableRow>
+                <TableCell align="center"><strong>Id</strong></TableCell>
                   <TableCell align="center"><strong>Name</strong></TableCell>
                   <TableCell align="center"><strong>Email</strong></TableCell>
                   <TableCell align="center"><strong>Phone</strong></TableCell>
-                  <TableCell align="center"><strong>Salary</strong></TableCell>
                   <TableCell align="center"><strong>Role</strong></TableCell>
                   <TableCell align="center"><strong>Actions</strong></TableCell>
                 </TableRow>
@@ -662,16 +675,17 @@ function Employee(props) {
             <TableBody>
               {filteredEmployees.map((emp) => (
                 <TableRow key={emp.employee_id}>
+                  <TableCell align="center">{emp.employee_id}</TableCell>
                   <TableCell align="center">{emp.name}</TableCell>
                   <TableCell align="center">{emp.email}</TableCell>
                   <TableCell align="center">{emp.phone_number}</TableCell>
-                  <TableCell align="center">${emp.salary}</TableCell>
                   <TableCell align="center">{getRole(emp.role)}</TableCell>
                   <TableCell align="center">
                     <Stack spacing={1} direction="column">
                       <Button size="small" variant="outlined" onClick={() => setDetailEmployee(emp.employee_id)}>View</Button>
                       <Button size="small" variant="outlined" onClick={() => setEditEmployee(emp.employee_id)}>Update</Button>
                       <Button size="small" variant="outlined" color="error" onClick={() => setEmployeeToDelete(emp)}>Delete</Button>
+                      <Button size="small" variant="outlined" color="error" onClick={() => setSubordinateToDelete(emp)}>Delete Relationship</Button>
                     </Stack>
                   </TableCell>
                 </TableRow>
@@ -682,6 +696,7 @@ function Employee(props) {
 
         <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
             <Button variant="contained" onClick={() => setAddEmployee(true)}>Add Employee</Button>
+            <Button variant="contained" onClick={() => SetAddSubordinate(true)}>Add Subordinate</Button>
         </Box>
       </Box>
     </Box>
@@ -690,6 +705,13 @@ function Employee(props) {
       open={!!addEmployee}
       onClose={() => setAddEmployee(null)}
       onSave={(newEmp) => setEmployees([...employees, newEmp])}
+    />
+
+    <AddSubordinateDialog
+      managerId={managerId}
+      open={!!addSubordinate}
+      onClose={() => SetAddSubordinate(null)}
+      onSave={handleAddSave}
     />
 
     <EmployeeDetailDialog
@@ -715,8 +737,16 @@ function Employee(props) {
       onClose={() => setEmployeeToDelete(null)}
       onConfirm={handleConfirmDelete}
     />
+
+    <DeleteSubordinateDialog
+      managerId={managerId}
+      open={!!subordinateToDelete}
+      subordinate={subordinateToDelete}
+      onClose={() => setSubordinateToDelete(null)}
+      onConfirm={handleDeleteSubordinateConfirm}
+    />
     </div>
   );
 }
 
-export default Employee;
+export default Subordinate;
