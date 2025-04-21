@@ -323,9 +323,13 @@ export default function Product() {
   // fetch list
   useEffect(() => {
     setLoading(true);
+    const token = localStorage.getItem('token');
     let url = `${BASE}/products/`;
     if (mode !== 'all') url += `?type=${mode}`;
-    fetch(url)
+    fetch(url, {headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    }})
       .then(r => r.json())
       .then(data => setItems(data))
       .catch(() => {})
@@ -339,7 +343,11 @@ export default function Product() {
       return;
     }
     setDetailLoading(true);
-    fetch(`${BASE}/products/${detailId}/`)
+    const token = localStorage.getItem('token');
+    fetch(`${BASE}/products/${detailId}/`, {headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    }})
       .then(res => res.ok ? res.json() : Promise.reject())
       .then(data => { setDetailData(data); setDetailError(null); })
       .catch(() => setDetailError('Unable to load'))
