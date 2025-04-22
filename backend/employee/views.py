@@ -445,7 +445,6 @@ class SubordinateView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
 # class EmployeeAddressView(APIView):
 #     def post(self, request):
 #         serialiser = EmployeeAddressSerializer(data=request.data)
