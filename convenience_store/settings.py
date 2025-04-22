@@ -112,14 +112,13 @@ WSGI_APPLICATION = 'convenience_store.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cv',
-        'USER': 'root',
-        'PASSWORD': 'mysql471',
+        'NAME': 'conveniencestoredb',
+        'USER': 'Fei',
+        'PASSWORD': '0323',
         'HOST':'localhost',
         'PORT':'3306',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

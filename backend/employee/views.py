@@ -92,6 +92,22 @@ class EmployeeView(APIView):
         if serialiser.is_valid():
             exists_warning = False
             valid_data = serialiser.validated_data
+
+            required_fields = ['name', 'email', 'phone_number']
+            missing_fields = [field for field in required_fields if not valid_data.get(field)]
+
+            if missing_fields:
+                return Response(
+                    {"error": f"Missing required fields: {', '.join(missing_fields)}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            if not valid_data.get('role'):
+                return Response(
+                    {"error": f"Missing required fields: role"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             employee = Employee.objects.create(
                 name=valid_data['name'],
                 email=valid_data['email'],
@@ -99,10 +115,15 @@ class EmployeeView(APIView):
                 salary=valid_data.get('salary'),
                 role=valid_data.get('role')
             )
-            if USE_HASH:
-                employee.login_password = hash_password(valid_data.get('password'))
+
+            if not valid_data.get('login_password'):
+                password = "abc"
             else:
-                employee.login_password=valid_data.get('login_password')
+                password = valid_data.get('login_password')
+            if USE_HASH:
+                employee.login_password = hash_password(password)
+            else:
+                employee.login_password = password
             employee.save()
             
             supervisor = valid_data.get('supervisor')
@@ -110,11 +131,18 @@ class EmployeeView(APIView):
             if supervisor:
                 try:
                     supervisor_obj = Employee.objects.get(employee_id=supervisor)
-                    employee.supervisor = supervisor_obj
-                    employee.save()
-                except Manager.DoesNotExist:
+                    if employee.role == 2:
+                        exists_warning = True
+                        warning = "Cannot assign a supervisor for a manager"
+                        employee.supervisor = None
+                    else:
+                        employee.supervisor = supervisor_obj
+                except Employee.DoesNotExist:
                     exists_warning = True
                     warning = "The supervisor is not a manager"
+
+            employee.save()
+            
 
             for address in valid_data['addresses']:
                 EmployeeAddress.objects.create(
@@ -125,19 +153,19 @@ class EmployeeView(APIView):
                     post_code=address['post_code']
                 )
             
-            if valid_data['role'] == 0:
+            if valid_data.get('role') == 0:
                 Salesperson.objects.create(
                     employee=employee,
                     sales_target=valid_data.get('sales_target')
                 )
             
-            elif valid_data['role'] == 1:
+            elif valid_data.get('role') == 1:
                 PurchasePerson.objects.create(
                     employee=employee,
                     purchase_section=valid_data.get('purchase_section')
                 )
 
-            elif valid_data['role'] == 2:
+            elif valid_data.get('role') == 2:
                 Manager.objects.create(
                     employee=employee,
                     management_level=valid_data.get('management_level')
@@ -226,6 +254,15 @@ class EmployeeDetailView(APIView):
         if serialiser.is_valid():
             exists_warning = False
             valid_data = serialiser.validated_data
+
+            required_fields = ['name', 'email', 'phone_number']
+            missing_fields = [field for field in required_fields if not valid_data.get(field)]
+
+            if missing_fields:
+                return Response(
+                    {"error": f"Missing required fields: {', '.join(missing_fields)}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
             try:
                 employee = Employee.objects.get(employee_id = employee_id)
@@ -242,9 +279,13 @@ class EmployeeDetailView(APIView):
             if supervisor:
                 try:
                     #manager = Manager.objects.get(employee=supervisor)
-                    supervisor_obj = Employee.objects.get(employee_id=supervisor)
-                    employee.supervisor = supervisor_obj
-                except Manager.DoesNotExist:
+                    if employee.role == 2:
+                        exists_warning = True
+                        warning = "Cannot assign a supervisor for a manager"
+                    else:
+                        supervisor_obj = Employee.objects.get(employee_id=supervisor)
+                        employee.supervisor = supervisor_obj
+                except Employee.DoesNotExist:
                     exists_warning = True
                     warning = "The supervisor is not a manager"
             employee.save()
@@ -420,6 +461,9 @@ class SubordinateView(APIView):
             subordinate = Employee.objects.get(employee_id=subordinate_id)
         except Employee.DoesNotExist:
             return Response({"error": "The employee does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+        if subordinate.role == 2:
+            return Response({"error": "Cannot assign a superviosr for a manager"}, status=status.HTTP_404_NOT_FOUND)
 
         try:
             manager = Employee.objects.get(employee_id=supervisor_id)
