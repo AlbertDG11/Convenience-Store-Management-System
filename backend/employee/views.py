@@ -9,8 +9,8 @@ from django.core.cache import cache
 import time
 
 
-USE_CACHE = False
-USE_HASH = False
+USE_CACHE = True
+USE_HASH = True
 
 
 # Create your views here.
