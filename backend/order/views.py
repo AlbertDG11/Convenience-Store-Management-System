@@ -26,7 +26,7 @@ class OrderViewSet(RoleRequiredMixin, viewsets.ModelViewSet):
     def cancel_order(self, request, pk=None):
         order = self.get_object()
         if order.order_status == 'Canceled':
-            # idempotent: already canceled
+
             serializer = self.get_serializer(order)
             return Response(serializer.data, status=status.HTTP_200_OK)
 

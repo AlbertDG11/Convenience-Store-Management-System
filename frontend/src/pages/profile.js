@@ -1,39 +1,46 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Button, Stack, TextField, 
-  Select, MenuItem, InputLabel, FormControl} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  Avatar,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  IconButton,
+  Box,
+  Divider,
+  Snackbar,
+  Alert
+} from '@mui/material';
+import {
+  Edit as EditIcon,
+  Save as SaveIcon,
+  Cancel as CancelIcon,
+} from '@mui/icons-material';
+import { motion } from 'framer-motion';
 
 
-function getRole(roleCode) {
-    var role
-    if (roleCode === 0) {
-        role = "Salesperson"
-    } 
-    else if (roleCode === 1) {
-        role = "Purchaseperson"
-    }   
-    else if (roleCode === 2) {
-        role = "Manager"
-    }  
-    else {
-        role = "Unknown"
-    }
-    return role
-}
+const ROLE_MAP = {
+  0: 'Salesperson',
+  1: 'Purchaseperson',
+  2: 'Manager',
+};
 
-
-function formatAddresses(addresses) {
-  if (!Array.isArray(addresses)) return 'No address';
-  return addresses.map((addr, idx) => (
-    <div key={idx}>
-      Address {idx + 1}: {addr.street_address}, {addr.city}, {addr.province}, {addr.post_code}
-    </div>
-  ));
-}
-
-function ShowProfile({ employeeId, onEdit }) {
+export default function Profile() {
+  const [mode, setMode] = useState('view'); // 'view' | 'edit'
   const [employee, setEmployee] = useState(null);
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState(null);
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone_number: '',
+    role: null,
+    addresses: []
+  });
+  const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
+  const employeeId = JSON.parse(localStorage.getItem('user') || '{}').id;
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
       setLoading(true);
@@ -139,164 +146,133 @@ function EditProfile({ employeeId, onSave, onCancel }) {
       .finally(() => {setLoading(false);});
   }, [employeeId]);
 
-  const handleChange = (field) => (event) => {
-    let value = event.target.value;
-  
-    if (field === 'salary') {
-      value = parseFloat(value);
-    }
-  
+  const handleChange = (field) => (e) => {
+    const value = e.target.value;
     setForm({ ...form, [field]: value });
   };
-  
-  const handleAddressChange = (index, field) => (event) => {
-    const newAddresses = [...form.addresses];
-    newAddresses[index] = {
-      ...newAddresses[index],
-      [field]: event.target.value,
-    };
-    setForm({ ...form, addresses: newAddresses });
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/employee/${employeeId}/`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error('Update failed');
+      const updated = await res.json();
+      setEmployee(updated);
+      setMode('view');
+      setAlert({ open: true, message: 'Profile updated', severity: 'success' });
+    } catch (err) {
+      setAlert({ open: true, message: err.message, severity: 'error' });
+    }
   };
 
-  const handleRemoveAddress = (index) => {
-    const newAddresses = [...form.addresses];
-    newAddresses.splice(index, 1);
-    setForm({ ...form, addresses: newAddresses });
-  };
-  
-  const handleAddAddress = () => {
-    const newAddresses = [...(form.addresses || []), {
-      employee_id: employeeId,
-      province: '',
-      city: '',
-      street_address: '',
-      post_code: ''
-    }];
-    setForm({ ...form, addresses: newAddresses });
-  };
-
-  const handleSubmit = () => {
-    console.log("Submitting form:", form);
-    const token = localStorage.getItem('token');
-    fetch(`http://localhost:8000/employee/${employeeId}/`, {
-      method: 'PUT',
-      headers: { 
-        'Authorization': 'Bearer ' + token,
-        'Content-Type': 'application/json'
-       },
-      body: JSON.stringify(form),
-    })
-    .then(res => res.json())
-    .then(data => {
-      alert('Update Successfully');
-      onSave();
-    })
-    .catch(err => {
-      alert('Fail to Update');
-      onSave();
+  const handleCancel = () => {
+    setForm({
+      name: employee?.name || '',
+      email: employee?.email || '',
+      phone_number: employee?.phone_number || '',
+      role: employee?.role,
+      addresses: employee?.addresses || []
     });
+    setMode('view');
   };
 
   return (
-    <div>
-        <Box>
-        <TextField fullWidth label="Name" value={form.name || ''} onChange={handleChange('name')} sx={{ mt: 2 }} />
-        <TextField fullWidth label="Email" value={form.email || ''} onChange={handleChange('email')} sx={{ mt: 2 }} />
-        <TextField fullWidth label="Phone" value={form.phone_number || ''} onChange={handleChange('phone_number')} sx={{ mt: 2 }} />
-        <TextField fullWidth label="Salary" type="number" value={form.salary || ''} onChange={handleChange('salary')} disabled sx={{ mt: 2 }} />
-        <TextField fullWidth label="Supervisor" value={form.supervisor || ''} onChange={handleChange('supervisor')} disabled sx={{ mt: 2 }} />
-        <FormControl fullWidth sx={{ mt: 2 }} disabled>
-          <InputLabel>Role</InputLabel>
-          <Select
-            value={form.role ?? ''}
-            label="Role"
-            onChange={handleChange('role')}
-          >
-            <MenuItem value={0}>Salesperson</MenuItem>
-            <MenuItem value={1}>Purchase</MenuItem>
-            <MenuItem value={2}>Manager</MenuItem>
-          </Select>
-        </FormControl>
-
-        {(form.addresses || []).map((addr, index) => (
-          <Box key={index} sx={{ border: '1px solid #ccc', p: 2, borderRadius: 2, mt: 2 }}>
-            <Typography variant="subtitle2">Address {index + 1}</Typography>
-            <TextField fullWidth label="Province" value={addr.province} onChange={handleAddressChange(index, 'province')} sx={{ mt: 1 }} />
-            <TextField fullWidth label="City" value={addr.city} onChange={handleAddressChange(index, 'city')} sx={{ mt: 1 }} />
-            <TextField fullWidth label="Street Address" value={addr.street_address} onChange={handleAddressChange(index, 'street_address')} sx={{ mt: 1 }} />
-            <TextField fullWidth label="Post Code" value={addr.post_code} onChange={handleAddressChange(index, 'post_code')} sx={{ mt: 1 }} />
-            {(form.addresses || []).length > 1 && (
-              <Button color="error" onClick={() => handleRemoveAddress(index)} sx={{ mt: 1 }}>
-                ➖ Remove This Address
-              </Button>
+    <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4 }}>
+      <Card component={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} elevation={4}>
+        <CardHeader
+          avatar={<Avatar sx={{ bgcolor: 'primary.main' }}>{employee?.name?.[0] || ''}</Avatar>}
+          title={<Typography variant="h6">{mode === 'view' ? (employee?.name || 'Profile') : 'Edit Profile'}</Typography>}
+          action={
+            mode === 'view' ? (
+              <IconButton onClick={() => setMode('edit')}>
+                <EditIcon />
+              </IconButton>
+            ) : (
+              <>
+                <IconButton color="success" onClick={handleSave} disabled={!form.name.trim()}>
+                  <SaveIcon />
+                </IconButton>
+                <IconButton color="error" onClick={handleCancel}>
+                  <CancelIcon />
+                </IconButton>
+              </>
+            )
+          }
+        />
+        <Divider />
+        <CardContent>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Name"
+                name="name"
+                value={form.name}
+                onChange={handleChange('name')}
+                disabled={mode === 'view'}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Email"
+                name="email"
+                value={form.email}
+                onChange={handleChange('email')}
+                disabled={mode === 'view'}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Phone"
+                name="phone_number"
+                value={form.phone_number}
+                onChange={handleChange('phone_number')}
+                disabled={mode === 'view'}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Role"
+                value={ROLE_MAP[form.role] || ''}
+                disabled
+              />
+            </Grid>
+            {mode === 'view' && (
+              <Grid item xs={12}>
+                <Typography variant="body2" color="text.secondary">Addresses:</Typography>
+                {(employee?.addresses || []).length > 0 ? (
+                  (employee.addresses || []).map((a, i) => (
+                    <Typography key={i} variant="body2">
+                      {i + 1}. {a.street_address || ''}, {a.city || ''}, {a.province || ''}, {a.post_code || ''}
+                    </Typography>
+                  ))
+                ) : (
+                  <Typography variant="body2">No addresses</Typography>
+                )}
+              </Grid>
             )}
-          </Box>          
-        ))}
-        <Button onClick={handleAddAddress} sx={{ mt: 2 }}>
-          ➕ Add Address
-        </Button>
-        {form.role === 0 && (
-            <TextField
-              fullWidth
-              label="Sales Target"
-              value={form.sales_target || ''}
-              onChange={handleChange('sales_target')}
-              sx={{ mt: 2 }} disabled
-            />
-          )}
-
-          {form.role === 1 && (
-            <TextField
-              fullWidth
-              label="Purchase Section"
-              value={form.purchase_section || ''}
-              onChange={handleChange('purchase_section')}
-              sx={{ mt: 2 }} disabled
-            />
-          )}
-
-          {form.role === 2 && (
-            <TextField
-              fullWidth
-              label="Management Level"
-              value={form.management_level || ''}
-              onChange={handleChange('management_level')}
-              sx={{ mt: 2 }} disabled
-            />
-          )}
-          </Box>
-          <Button onClick={onCancel} sx={{ mt: 2, mr: 1 }}>
-            Cancel
-          </Button>
-          <Button variant="contained" onClick={handleSubmit} sx={{ mt: 2 }}>
-            Save
-          </Button>
-        </div>
+          </Grid>
+        </CardContent>
+      </Card>
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={6000}
+        onClose={() => setAlert(a => ({ ...a, open: false }))}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity={alert.severity} onClose={() => setAlert(a => ({ ...a, open: false }))}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 }
-
-
-function Profile(props) {
-  const [mode, setMode] = useState('view'); // 'view' | 'edit'
-  const employeeId = JSON.parse(localStorage.getItem('user')).id;
-
-  return (
-    <div>
-      <h2>Profile</h2>
-      {mode === 'view' ? (
-        <ShowProfile
-          employeeId={employeeId} 
-          onEdit={() => setMode('edit')} 
-        />
-      ) : (
-        <EditProfile 
-          employeeId={employeeId} 
-          onSave={() => setMode('view')} 
-          onCancel={() => setMode('view')} 
-        />
-      )}
-    </div>
-  );
-}
-
-export default Profile;
