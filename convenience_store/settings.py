@@ -159,14 +159,14 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'frontend/build/static',  # 这里指向 React build 目录中的静态文件
+    BASE_DIR / 'frontend/build/static',
 ]
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'frontend/build',  # 这里指向 React build 目录中的 HTML 文件
+            BASE_DIR / 'frontend/build',
         ],
         'APP_DIRS': True,
         'OPTIONS': {

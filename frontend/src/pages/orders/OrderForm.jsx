@@ -34,7 +34,7 @@ export default function OrderForm() {
   const [errors, setErrors] = useState({});
   const [alert, setAlert] = useState({ open: false, message: '', severity: 'error' });
 
-  // 载入已有订单
+
   useEffect(() => {
     if (isEdit) {
       fetchOrderById(id)
@@ -46,7 +46,7 @@ export default function OrderForm() {
             customer_notes: d.customer_notes || '',
             member: d.member ?? '',
             items: d.items.map(i => ({
-              product: i.product,              // 这里 product 即商品 ID
+              product: i.product,
               quantity_ordered: i.quantity_ordered
             }))
           });
@@ -87,7 +87,7 @@ export default function OrderForm() {
     }));
   };
 
-  // 简单校验：至少一条明细，ID 和数量都有效
+
   const validate = () => {
     const errs = {};
     if (form.items.length === 0) {

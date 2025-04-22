@@ -21,7 +21,7 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 
-// Helper to map role code to text
+
 const ROLE_MAP = {
   0: 'Salesperson',
   1: 'Purchaseperson',
@@ -164,7 +164,7 @@ export default function Profile() {
                 label="Role"
                 value={ROLE_MAP[form.role] || ''}
                 disabled
-n              />
+              />
             </Grid>
             {mode === 'view' && (
               <Grid item xs={12}>
