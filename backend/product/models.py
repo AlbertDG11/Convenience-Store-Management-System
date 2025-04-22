@@ -54,3 +54,11 @@ class Inventory(models.Model):
         unique_together = (
             ('product', 'inventory_id'),
         )
+    def save(self, *args, **kwargs):
+        # compute status based on quantity
+        try:
+            qty = int(self.quantity)
+        except (TypeError, ValueError):
+            qty = 0
+        self.status = 'In Stock' if qty > 0 else 'Out of Stock'
+        super().save(*args, **kwargs)
