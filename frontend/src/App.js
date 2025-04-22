@@ -48,12 +48,12 @@ export default function App() {
 
           {/* Orders */}
           <Route path="/orders"        element={<ProtectedRoute allowedRoles={[0,2]}><OrderList /></ProtectedRoute>} />
-          <Route path="/orders/new"    element={<ProtectedRoute allowedRoles={[0,2]}><OrderForm /></ProtectedRoute>} />
+          <Route path="/orders/new"    element={<ProtectedRoute allowedRoles={[0]}><OrderForm /></ProtectedRoute>} />
           <Route path="/orders/:id/edit" element={<ProtectedRoute allowedRoles={[0,2]}><OrderForm /></ProtectedRoute>} />
 
           {/* Purchases */}
           <Route path="/purchases"     element={<ProtectedRoute allowedRoles={[1,2]}><PurchaseList /></ProtectedRoute>} />
-          <Route path="/purchases/new" element={<ProtectedRoute allowedRoles={[1,2]}><PurchaseForm /></ProtectedRoute>} />
+          <Route path="/purchases/new" element={<ProtectedRoute allowedRoles={[1]}><PurchaseForm /></ProtectedRoute>} />
           <Route path="/purchases/:id/edit" element={<ProtectedRoute allowedRoles={[1,2]}><PurchaseForm /></ProtectedRoute>} />
 
           {/* Suppliers & Products */}

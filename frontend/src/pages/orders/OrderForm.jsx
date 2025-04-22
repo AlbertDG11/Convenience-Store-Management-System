@@ -34,7 +34,6 @@ export default function OrderForm() {
   const [errors, setErrors] = useState({});
   const [alert, setAlert] = useState({ open: false, message: '', severity: 'error' });
 
-
   useEffect(() => {
     if (isEdit) {
       fetchOrderById(id)
@@ -87,7 +86,6 @@ export default function OrderForm() {
     }));
   };
 
-
   const validate = () => {
     const errs = {};
     if (form.items.length === 0) {
@@ -98,7 +96,7 @@ export default function OrderForm() {
         errs[`item-${i}-product`] = 'Product ID required';
       }
       if (!it.quantity_ordered || it.quantity_ordered < 1) {
-        errs[`item-${i}-quantity`] = 'Qty must be ≥ 1';
+        errs[`item-${i}-quantity`] = 'Qty must be ≥ 1';
       }
     });
     setErrors(errs);
@@ -129,7 +127,14 @@ export default function OrderForm() {
           setTimeout(() => navigate('/orders'), 1000);
         })
         .catch(err => {
-          const msg = err.response?.data?.detail || err.message;
+          const data = err.response?.data || {};
+          let msg = Array.isArray(data.non_field_errors)
+            ? data.non_field_errors[0]
+            : err.response?.data?.detail || err.message;
+          if (data.items) {
+            const extra = Object.values(data.items).flat().join('；');
+            msg += '：' + extra;
+          }
           setAlert({ open: true, message: msg, severity: 'error' });
         });
     } else {
@@ -139,7 +144,14 @@ export default function OrderForm() {
           setTimeout(() => navigate('/orders'), 1000);
         })
         .catch(err => {
-          const msg = err.response?.data?.detail || err.message;
+          const data = err.response?.data || {};
+          let msg = Array.isArray(data.non_field_errors)
+            ? data.non_field_errors[0]
+            : err.response?.data?.detail || err.message;
+          if (data.items) {
+            const extra = Object.values(data.items).flat().join('；');
+            msg += '：' + extra;
+          }
           setAlert({ open: true, message: msg, severity: 'error' });
         });
     }
