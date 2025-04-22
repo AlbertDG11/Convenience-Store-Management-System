@@ -27,10 +27,9 @@ class EmployeeView(APIView):
             key = "cached_employees_full_info"
             try:
                 data = cache.get(key)
-                print("using cache")
                 if data is not None:
                     end_time = time.time()
-                    print(f"Time of using cache: {end_time - start_time:.4f}s")
+                    print(f"Time of using cache: {end_time - start_time:.6f}s")
                     return Response(data, status=status.HTTP_200_OK)
             except redis.exceptions.RedisError as e:
                 print(f"[Redis Error] Fallback to DB: {e}")
@@ -76,7 +75,7 @@ class EmployeeView(APIView):
                 print(f"[Redis Error] Fallback to DB: {e}")
 
         end_time = time.time()
-        print(f"Time of not using cache: {end_time - start_time:.4f}s")
+        print(f"Time of not using cache: {end_time - start_time:.6f}s")
         return Response(serialiser.data, status=status.HTTP_200_OK)
     
     def post(self, request):
