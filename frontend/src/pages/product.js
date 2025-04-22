@@ -31,7 +31,6 @@ function AddProductDialog({ mode, open, onClose, onSave }) {
       type: form.type,
       discount: form.discount === '' ? null : parseFloat(form.discount),
       price: form.price === '' ? null : parseFloat(form.price),
-      price_after_discount: form.price_after_discount === '' ? null : parseFloat(form.price_after_discount),
       food_type: form.type === 'food' ? (form.food_type || null) : null,
       storage_condition: form.type === 'food' ? (form.storage_condition || null) : null,
       expiration_date: form.type === 'food' ? (form.expiration_date || null) : null,
@@ -157,7 +156,6 @@ function UpdateProductDialog({ product, open, onClose, onSave }) {
       type: form.type,
       discount: form.discount === '' ? null : parseFloat(form.discount),
       price: form.price === '' ? null : parseFloat(form.price),
-      price_after_discount: form.price_after_discount === '' ? null : parseFloat(form.price_after_discount),
       food_type: form.type === 'food' ? (form.food_type || null) : null,
       storage_condition: form.type === 'food' ? (form.storage_condition || null) : null,
       expiration_date: form.type === 'food' ? (form.expiration_date || null) : null,
@@ -227,7 +225,7 @@ function UpdateProductDialog({ product, open, onClose, onSave }) {
 
           <TextField label="Discount" value={form.discount} onChange={handle('discount')} fullWidth />
           <TextField label="Price" value={form.price} onChange={handle('price')} fullWidth />
-          <TextField label="Price After Discount" value={form.price_after_discount} onChange={handle('price_after_discount')} fullWidth />
+          <TextField label="Price After Discount" value={form.price_after_discount} disabled onChange={handle('price_after_discount')} fullWidth />
 
           {form.type === 'food' && (
             <>
@@ -356,8 +354,24 @@ export default function Product() {
   }, [detailId]);
 
   const handleDel = () => {
-    fetch(`${BASE}/products/${delProduct.product.product_id}/`, { method: 'DELETE' })
-      .then(() => setItems(i => i.filter(x => x.product_id !== delProduct.product.product_id)))
+    const token = localStorage.getItem('token');
+    fetch(`${BASE}/products/${delProduct.product.product_id}/`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    })
+      .then(res => {
+        if (res.status === 204) {
+          setItems(i => i.filter(x => x.product_id !== delProduct.product.product_id));
+        } else {
+          return res.json().then(data => { throw new Error(data.detail || 'Failed to delete'); });
+        }
+      })
+      .catch(err => {
+        console.error('Delete error:', err);
+        alert('Failed to delete product');
+      })
       .finally(() => setDelProduct(null));
   };
 
