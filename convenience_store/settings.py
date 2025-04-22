@@ -113,9 +113,9 @@ WSGI_APPLICATION = 'convenience_store.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cv',
-        'USER': 'root',
-        'PASSWORD': 'mysql471',
+        'NAME': 'conveniencestoredb',
+        'USER': 'Jiaqi',
+        'PASSWORD': '200505',
         'HOST':'localhost',
         'PORT':'3306',
     }
@@ -159,14 +159,14 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'frontend/build/static',
+    BASE_DIR / 'frontend/build/static',  # 这里指向 React build 目录中的静态文件
 ]
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'frontend/build',
+            BASE_DIR / 'frontend/build',  # 这里指向 React build 目录中的 HTML 文件
         ],
         'APP_DIRS': True,
         'OPTIONS': {
