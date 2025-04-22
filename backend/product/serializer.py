@@ -164,6 +164,8 @@ class NonFoodProductSerializer(serializers.ModelSerializer):
         
 class InventorySerializer(serializers.ModelSerializer):
     product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+    status  = serializers.CharField(read_only=True)
+    quantity = serializers.IntegerField()
 
 #    def create(self, validated_data):
 #        return Inventory.objects.create(**validated_data)

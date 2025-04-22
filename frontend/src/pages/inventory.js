@@ -13,7 +13,7 @@ function AddInventoryDialog({ open, onClose, onSave }) {
     inventory_id: '',
     location: '',
     quantity: '',
-    status: ''
+    //status: ''
   });
 
   const handleChange = (field) => (e) => {
@@ -22,12 +22,13 @@ function AddInventoryDialog({ open, onClose, onSave }) {
 
   const handleSubmit = () => {
     const token = localStorage.getItem('token');
+    const { status, ...payload } = form;
     fetch(`${BASE_URL}/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json',
         'Authorization': "Bearer" + token
        },
-      body: JSON.stringify(form)
+      body: JSON.stringify(payload)
     })
       .then(async res => {
         const data = await res.json();
@@ -106,7 +107,7 @@ function UpdateInventoryDialog({ open, inventory, onClose, onSave }) {
         inventory_id:  inventory.inventory_id,
         location:      inventory.location,
         quantity:      inventory.quantity,
-        status:        inventory.status
+        //status:        inventory.status
       });
     }
   }, [inventory]);
@@ -117,12 +118,13 @@ function UpdateInventoryDialog({ open, inventory, onClose, onSave }) {
 
   const handleSubmit = () => {
     const token = localStorage.getItem('token');
+    const { status, ...payload } = form;
     fetch(`${BASE_URL}/${form.id}/`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json',
         'Authorization': "Bearer" + token
        },
-      body: JSON.stringify(form)
+      body: JSON.stringify(payload)
     })
       .then(async res => {
         const data = await res.json();
