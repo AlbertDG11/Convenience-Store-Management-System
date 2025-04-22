@@ -19,6 +19,6 @@ def get_user_from_token(request):
     return None
 
 
-SALT = 'my_fixed_salt_123'
+SALT = 'abc'
 def hash_password(password: str) -> str:
     return hashlib.sha256((SALT + password).encode()).hexdigest()
