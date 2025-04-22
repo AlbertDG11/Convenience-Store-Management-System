@@ -5,6 +5,7 @@ import { fetchOrders, cancelOrder, fetchProducts, fetchCustomers } from '../../a
 import {
   Table, TableHead, TableBody, TableRow, TableCell,
   TableContainer, Paper, Button, IconButton, Collapse, Box,
+  Dialog, DialogTitle, DialogContent, DialogActions, Typography
 } from '@mui/material';
 import { KeyboardArrowDown, KeyboardArrowUp, Edit, Cancel } from '@mui/icons-material';
 
@@ -13,26 +14,43 @@ export default function OrderList() {
   const [products, setProducts] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [openRow, setOpenRow] = useState(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchProducts().then(res => setProducts(res.data)).catch(console.error);
-    fetchCustomers().then(res => setCustomers(res.data)).catch(console.error);
+    fetchProducts().then(r => setProducts(r.data)).catch(console.error);
+    fetchCustomers().then(r => setCustomers(r.data)).catch(console.error);
     loadOrders();
   }, []);
 
   const loadOrders = () => {
-    fetchOrders().then(res => setOrders(res.data)).catch(console.error);
+    fetchOrders().then(r => setOrders(r.data)).catch(console.error);
   };
 
-  const handleCancel = id => {
-    cancelOrder(id)
-      .then(() => loadOrders())
-      .catch(console.error);
+  const handleCancelClick = id => {
+    setOrderToCancel(id);
+    setCancelDialogOpen(true);
+  };
+
+  const confirmCancel = () => {
+    if (orderToCancel) {
+      cancelOrder(orderToCancel)
+        .then(() => {
+          loadOrders();
+          setCancelDialogOpen(false);
+          setOrderToCancel(null);
+        })
+        .catch(error => {
+          console.error("Error canceling order:", error);
+          setCancelDialogOpen(false);
+          setOrderToCancel(null);
+        });
+    }
   };
 
   const getProduct = pid => products.find(p => p.product_id === pid) || {};
-  const getCustomer = cid => customers.find(c => c.id === cid) || null;
+  const getCustomer = cid => customers.find(c => c.id === cid || c.membership_id === cid) || null;
 
   return (
     <TableContainer component={Paper} sx={{ mt: 2, p: 2 }}>
@@ -64,14 +82,24 @@ export default function OrderList() {
                     </IconButton>
                   </TableCell>
                   <TableCell>{order.order_id}</TableCell>
-                  <TableCell>{order.create_time.replace('Z','').replace('T',' ')}</TableCell>
+                  <TableCell>{order.create_time}</TableCell> {/* raw, unmodified */}
                   <TableCell>{order.delivery_address}</TableCell>
                   <TableCell>{order.order_status}</TableCell>
                   <TableCell>{cust ? cust.name : 'N/A'}</TableCell>
-                  <TableCell>{order.total_price}</TableCell>
+                  <TableCell>${parseFloat(order.total_price).toFixed(2)}</TableCell>
                   <TableCell>
-                    <IconButton onClick={() => navigate(`/orders/${order.order_id}/edit`)}><Edit/></IconButton>
-                    <IconButton onClick={() => handleCancel(order.order_id)}><Cancel/></IconButton>
+                    <IconButton
+                      onClick={() => navigate(`/orders/${order.order_id}/edit`)}
+                      disabled={order.order_status === 'Canceled'}
+                    >
+                      <Edit/>
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleCancelClick(order.order_id)}
+                      disabled={order.order_status === 'Canceled'}
+                    >
+                      <Cancel/>
+                    </IconButton>
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -83,7 +111,9 @@ export default function OrderList() {
                           const prod = getProduct(item.product);
                           return (
                             <Box key={item.id} sx={{ ml: 2 }}>
-                              ID: {item.id}, Name: {item.product_name}, Qty: {item.quantity_ordered}, Price: {prod.price ?? 'N/A'}
+                              ID: {item.id}, Name: {item.product_name || prod.name || 'Unknown'},
+                              Qty: {item.quantity_ordered},
+                              Price: ${prod.price ? parseFloat(prod.price).toFixed(2) : 'N/A'}
                             </Box>
                           );
                         })}
@@ -96,6 +126,17 @@ export default function OrderList() {
           })}
         </TableBody>
       </Table>
+
+      <Dialog open={cancelDialogOpen} onClose={() => setCancelDialogOpen(false)}>
+        <DialogTitle>Cancel Order</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to cancel this order? This action cannot be undone.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCancelDialogOpen(false)}>No</Button>
+          <Button onClick={confirmCancel} color="error">Yes, Cancel Order</Button>
+        </DialogActions>
+      </Dialog>
     </TableContainer>
-  );
+);
 }
