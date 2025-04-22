@@ -9,8 +9,8 @@ from django.core.cache import cache
 import time
 
 
-USE_CACHE = False
-USE_HASH = False
+USE_CACHE = True
+USE_HASH = True
 
 
 # Create your views here.
@@ -110,11 +110,18 @@ class EmployeeView(APIView):
             if supervisor:
                 try:
                     supervisor_obj = Employee.objects.get(employee_id=supervisor)
-                    employee.supervisor = supervisor_obj
-                    employee.save()
-                except Manager.DoesNotExist:
+                    if employee.role == 2:
+                        exists_warning = True
+                        warning = "Cannot assign a supervisor for a manager"
+                        employee.supervisor = None
+                    else:
+                        employee.supervisor = supervisor_obj
+                except Employee.DoesNotExist:
                     exists_warning = True
                     warning = "The supervisor is not a manager"
+
+            employee.save()
+            
 
             for address in valid_data['addresses']:
                 EmployeeAddress.objects.create(
@@ -242,9 +249,13 @@ class EmployeeDetailView(APIView):
             if supervisor:
                 try:
                     #manager = Manager.objects.get(employee=supervisor)
-                    supervisor_obj = Employee.objects.get(employee_id=supervisor)
-                    employee.supervisor = supervisor_obj
-                except Manager.DoesNotExist:
+                    if employee.role == 2:
+                        exists_warning = True
+                        warning = "Cannot assign a supervisor for a manager"
+                    else:
+                        supervisor_obj = Employee.objects.get(employee_id=supervisor)
+                        employee.supervisor = supervisor_obj
+                except Employee.DoesNotExist:
                     exists_warning = True
                     warning = "The supervisor is not a manager"
             employee.save()
@@ -420,6 +431,9 @@ class SubordinateView(APIView):
             subordinate = Employee.objects.get(employee_id=subordinate_id)
         except Employee.DoesNotExist:
             return Response({"error": "The employee does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+        if subordinate.role == 2:
+            return Response({"error": "Cannot assign a superviosr for a manager"}, status=status.HTTP_404_NOT_FOUND)
 
         try:
             manager = Employee.objects.get(employee_id=supervisor_id)

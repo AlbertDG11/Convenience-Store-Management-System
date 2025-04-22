@@ -6,7 +6,7 @@ from django.conf import settings
 from .utils import hash_password
 
 
-USE_HASH = False
+USE_HASH = True
 
 class AuthenticationSerializer(serializers.Serializer):
     username = serializers.CharField()
