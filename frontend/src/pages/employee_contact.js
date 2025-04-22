@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, Stack, Dialog,
-  DialogTitle, DialogContent, DialogActions, TextField, Grid} from '@mui/material';
+  DialogTitle, DialogContent, DialogActions, TextField, Grid,
+  Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 
 
 function getRole(roleCode) {
@@ -33,13 +34,13 @@ function formatAddresses(addresses) {
 
 function EmployeeDetailDialog({ employeeId, open, onClose }) {
   const [employee, setEmployee] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const token = localStorage.getItem('token');
+  const [/*loading*/, setLoading] = useState(false);
+  const [/*error*/, setError] = useState(null);
 
   useEffect(() => {
     if (open && employeeId) {
       setLoading(true);
+      const token = localStorage.getItem('token');
       fetch(`http://localhost:8000/employee/${employeeId}/`, {
         method: "GET",
         headers: { 
@@ -63,7 +64,7 @@ function EmployeeDetailDialog({ employeeId, open, onClose }) {
           setLoading(false);
         });
     } else {
-      setEmployee(null); // reset when closed
+      setEmployee(null);
     }
   }, [open, employeeId]);
 
@@ -112,11 +113,12 @@ function EmployeeContact(props) {
   const [detailEmployee, setDetailEmployee] = useState(null);
   const [filters, setFilters] = useState({
     name: '',
-    phone: ''
+    phone: '',
+    role: ''
   });
-  const token = localStorage.getItem('token');
   
   useEffect(() => {
+    const token = localStorage.getItem('token');
       fetch('http://localhost:8000/employee/', {
         method: "GET",
         headers: { 
@@ -146,7 +148,8 @@ function EmployeeContact(props) {
   const filteredEmployees = !filterActive ? employees : employees.filter(emp => {
     const nameMatch = filters.name === '' || emp.name.toLowerCase().includes(filters.name.toLowerCase());
     const phoneMatch = filters.phone === '' || emp.phone_number.includes(filters.phone);
-    return nameMatch && phoneMatch;
+    const roleMatch = filters.role === '' || emp.role === parseInt(filters.role);
+    return nameMatch && phoneMatch && roleMatch;
   });
 
   if (loading) return <p>Loading employees...</p>;
@@ -156,7 +159,6 @@ function EmployeeContact(props) {
     <div>
       <Box sx={{
         minHeight: '100vh',
-        backgroundImage: 'url(https://source.unsplash.com/random/1600x900?business)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         py: 6}}>
@@ -175,6 +177,21 @@ function EmployeeContact(props) {
               <TextField size="small" fullWidth label="Phone" value={filters.phone}
               onChange={(e) => setFilters({ ...filters, phone: e.target.value })}
               />
+            </Grid>
+            <Grid item xs={12} sm={6} md={2}>
+              <FormControl fullWidth size="small" sx={{ minWidth: 200 }}>
+                <InputLabel>Role</InputLabel>
+                <Select
+                  value={filters.role}
+                  label="Role"
+                  onChange={(e) => setFilters({ ...filters, role: e.target.value === '' ? '' : Number(e.target.value) })}
+                >
+                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value={'0'}>Salesperson</MenuItem>
+                  <MenuItem value={'1'}>Purchase Person</MenuItem>
+                  <MenuItem value={'2'}>Manager</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
               <Button fullWidth variant="outlined" onClick={() => setFilterActive(true)}>

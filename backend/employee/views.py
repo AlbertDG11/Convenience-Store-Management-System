@@ -4,13 +4,17 @@ from rest_framework.response import Response
 import redis.exceptions
 from .models import *
 from .serializer import *
-from ..authentication.utils import get_user_from_token
+from ..authentication.utils import get_user_from_token, hash_password
 from django.core.cache import cache
+import time
+
+
+USE_CACHE = False
+USE_HASH = False
+
 
 # Create your views here.
 class EmployeeView(APIView):
-    use_cache = False
-
     # Query employees
     def get(self, request):
         user_info = get_user_from_token(request)
@@ -18,16 +22,18 @@ class EmployeeView(APIView):
         if not user_info:
             return Response({'detail': 'Unauthorized'}, status=401)
 
-        if EmployeeView.use_cache:
+        start_time = time.time()
+        if USE_CACHE:
             key = "cached_employees_full_info"
             try:
                 data = cache.get(key)
                 print("using cache")
                 if data is not None:
-                    print("using cache")
+                    end_time = time.time()
+                    print(f"Time of using cache: {end_time - start_time:.4f}s")
                     return Response(data, status=status.HTTP_200_OK)
-            except redis.exceptions.ConnectionError:
-                print("Redis not available, using database fallback.")
+            except redis.exceptions.RedisError as e:
+                print(f"[Redis Error] Fallback to DB: {e}")
 
         employee_objs = Employee.objects.all()
         employees = []
@@ -63,12 +69,14 @@ class EmployeeView(APIView):
 
         serialiser = WholeEmployeeSerializer(employees, many=True)
 
-        if EmployeeView.use_cache:
+        if USE_CACHE:
             try:
                 cache.set(key, serialiser.data, timeout=60 * 5)
-            except redis.exceptions.ConnectionError:
-                print("Redis not available when writing cache.")
+            except redis.exceptions.RedisError as e:
+                print(f"[Redis Error] Fallback to DB: {e}")
 
+        end_time = time.time()
+        print(f"Time of not using cache: {end_time - start_time:.4f}s")
         return Response(serialiser.data, status=status.HTTP_200_OK)
     
     def post(self, request):
@@ -89,13 +97,18 @@ class EmployeeView(APIView):
                 email=valid_data['email'],
                 phone_number=valid_data['phone_number'],
                 salary=valid_data.get('salary'),
-                login_password=valid_data.get('login_password'),
                 role=valid_data.get('role')
             )
+            if USE_HASH:
+                employee.login_password = hash_password(valid_data.get('password'))
+            else:
+                employee.login_password=valid_data.get('login_password')
+            employee.save()
+            
             supervisor = valid_data.get('supervisor')
+
             if supervisor:
                 try:
-                    #Manager.objects.get(employee=supervisor)
                     supervisor_obj = Employee.objects.get(employee_id=supervisor)
                     employee.supervisor = supervisor_obj
                     employee.save()
@@ -130,18 +143,18 @@ class EmployeeView(APIView):
                     management_level=valid_data.get('management_level')
                 )
 
-            if EmployeeView.use_cache:
+            if USE_CACHE:
                 try:
                     cache.delete("cached_employees_full_info")
-                except redis.exceptions.ConnectionError:
-                    print("Redis not available, using database fallback.")
+                except redis.exceptions.RedisError as e:
+                    print(f"[Redis Error] Fallback to DB: {e}")
             
             if not exists_warning:
                 return Response({"status": "ok"}, status=status.HTTP_200_OK)
             else:
                 return Response({"warnings": warning}, status=status.HTTP_200_OK)
         else:
-            return Response({"error": "The data is not full or valid"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Some data is empty or invalid"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class EmployeeDetailView(APIView):
@@ -224,8 +237,6 @@ class EmployeeDetailView(APIView):
             employee.email=valid_data['email']
             employee.phone_number=valid_data['phone_number']
             employee.salary=valid_data.get('salary')
-            if valid_data.get('login_password'):
-                employee.login_password=valid_data.get('login_password')
             employee.role=valid_data.get('role')
             supervisor = valid_data.get('supervisor')
             if supervisor:
@@ -299,18 +310,18 @@ class EmployeeDetailView(APIView):
                 salesperson.management_level = valid_data.get('management_level')
                 salesperson.save()
 
-            # try:
-            #     cache.delete("cached_employees_full_info")
-            #     print("delete")
-            # except redis.exceptions.ConnectionError:
-            #     print("Redis not available, using database fallback.")
+            if USE_CACHE:
+                try:
+                    cache.delete("cached_employees_full_info")
+                except redis.exceptions.RedisError as e:
+                    print(f"[Redis Error] Fallback to DB: {e}")
 
             if not exists_warning:
                 return Response({"status": "ok"}, status=status.HTTP_200_OK)
             else:
                 return Response({"status": "ok", "warnings": warning}, status=status.HTTP_200_OK)
         else:
-            return Response({"err": "error"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "The input is not valid"}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, employee_id):
         user_info = get_user_from_token(request)
@@ -334,16 +345,16 @@ class EmployeeDetailView(APIView):
             if role:
                 role.objects.filter(employee=employee).delete()
             employee.delete()
-
-            # try:
-            #     cache.delete("cached_employees_full_info")
-            # except redis.exceptions.ConnectionError:
-            #     print("Redis not available, using database fallback.")
+            
+            if USE_CACHE:
+                try:
+                    cache.delete("cached_employees_full_info")
+                except redis.exceptions.RedisError as e:
+                    print(f"[Redis Error] Fallback to DB: {e}")
 
             return Response({"message": "Deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
         except Employee.DoesNotExist:
             return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
-
 
 
 class SubordinateView(APIView):
@@ -394,24 +405,36 @@ class SubordinateView(APIView):
         return Response(serialiser.data, status=status.HTTP_200_OK)
 
     def post(self, request, manager_id):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+
+        if user_info['role'] != 2:
+            return Response({'detail': 'Permission denied'}, status=403)
+
         subordinate_id = request.data.get('subordinate_id')
         supervisor_id = manager_id
-
-        subordinate = Employee.objects.get(employee_id=subordinate_id)
         
-        if not subordinate:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        try:
+            subordinate = Employee.objects.get(employee_id=subordinate_id)
+        except Employee.DoesNotExist:
+            return Response({"error": "The employee does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
-        manager = Employee.objects.get(employee_id=supervisor_id)
-        if manager.role != 2:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        try:
+            manager = Employee.objects.get(employee_id=supervisor_id)
+        except Employee.DoesNotExist:
+            return Response({"error": "The supervisor does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
         subordinate.supervisor = manager
         subordinate.save()
-        # try:
-        #     cache.delete("cached_employees_full_info")
-        # except redis.exceptions.ConnectionError:
-        #     print("Redis not available, using database fallback.")
+
+        if USE_CACHE:
+            try:
+                cache.delete("cached_employees_full_info")
+            except redis.exceptions.RedisError as e:
+                print(f"[Redis Error] Fallback to DB: {e}")
+
         return Response({"success": True}, status=status.HTTP_200_OK)
 
     def delete(self, request, manager_id):
@@ -437,32 +460,63 @@ class SubordinateView(APIView):
             
         subordinate.supervisor = None
         subordinate.save()
-        # try:
-        #     cache.delete("cached_employees_full_info")
-        # except redis.exceptions.ConnectionError:
-        #     print("Redis not available, using database fallback.")
+
+        if USE_CACHE:
+            try:
+                cache.delete("cached_employees_full_info")
+            except redis.exceptions.RedisError as e:
+                print(f"[Redis Error] Fallback to DB: {e}")
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# class EmployeeAddressView(APIView):
-#     def post(self, request):
-#         serialiser = EmployeeAddressSerializer(data=request.data)
-#         if serialiser.is_valid():
-#             EmployeeAddress.objects.create(
-#                 employee=Employee.objects.get(employee_id=valid_data['employee_id']),
-#                 province=valid_data['province'],
-#                 city=valid_data['city'],
-#                 street_address=valid_data['street_address'],
-#                 post_code=valid_data['post_code']
-#             )
-#             return Response(status=status.HTTP_200_OK)
-#         else:
-#             return Response(status=status.HTTP_400_BAD_REQUEST)
+class PasswordView(APIView):
+    def post(self, request):
+        user_info = get_user_from_token(request)
 
-#     def delete(self, request, address_id):
-        # try:
-        #     EmployeeAddress.objects.get(pk=address_id).delete()
-        #     return Response({"message": "Deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-        # except EmployeeAddress.DoesNotExist:
-        #     return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+
+        employee_id = request.data.get('id')
+        password = request.data.get('password')
+
+        try:
+            employee = Employee.objects.get(pk=employee_id)
+            if USE_HASH:
+                result = (employee.login_password == hash_password(password))
+            else:
+                result = (employee.login_password == password)
+            
+            if result:
+                return Response({"message": "password correct"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Incorrect user or password"}, status=status.HTTP_403_FORBIDDEN)
+        except Employee.DoesNotExist:
+            return Response({"error": "Incorrect user or password"}, status=status.HTTP_403_FORBIDDEN)
+
+    def put(self, request):
+        user_info = get_user_from_token(request)
+
+        if not user_info:
+            return Response({'detail': 'Unauthorized'}, status=401)
+
+        employee_id = request.data.get('id')
+        password = request.data.get('password')
+
+        try:
+            employee = Employee.objects.get(pk=employee_id)
+            if USE_HASH:
+                employee.login_password = hash_password(password)
+            else:
+                employee.login_password=password
+            employee.save()
+
+            if USE_CACHE:
+                try:
+                    cache.delete("cached_employees_full_info")
+                except redis.exceptions.RedisError as e:
+                    print(f"[Redis Error] Fallback to DB: {e}")
+            
+            return Response({"message": "change succeesfully"}, status=status.HTTP_200_OK)
+        except Employee.DoesNotExist:
+            return Response({"error": "Incorrect user or password"}, status=status.HTTP_403_FORBIDDEN)
