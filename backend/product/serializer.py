@@ -7,7 +7,7 @@ class ProductSerializer(serializers.ModelSerializer):
     type = serializers.CharField(required=False, allow_null=True)
     discount = serializers.FloatField(required=False, allow_null=True)
     price = serializers.FloatField(required=False, allow_null=True)
-    price_after_discount = serializers.FloatField(required=False, allow_null=True)
+    price_after_discount = serializers.FloatField(read_only=True)
 
     #food
     food_type = serializers.CharField(required=False, allow_null=True)
@@ -27,6 +27,10 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
     
     def create(self, validated_data):
+        
+        price    = validated_data.get('price') or 0
+        discount = validated_data.get('discount') or 0
+        validated_data['price_after_discount'] = price * (1 - discount)
         # Pop off subtype data so it doesn't get passed to Product.objects.create()
         food_data = {
             'food_type':         validated_data.pop('food_type', None),
@@ -50,6 +54,18 @@ class ProductSerializer(serializers.ModelSerializer):
         return prod
 
     def update(self, instance, validated_data):
+        
+        for attr, val in validated_data.items():
+            # we haven’t popped pad, so skip it if it sneaks in
+            if attr == 'price_after_discount':
+                continue
+            setattr(instance, attr, val)
+        # recalc pad
+        price    = instance.price or 0
+        discount = instance.discount or 0
+        instance.price_after_discount = price * (1 - discount)
+        instance.save()
+        
         # Extract subtype data
         food_data = {
             'food_type':         validated_data.pop('food_type', None),
