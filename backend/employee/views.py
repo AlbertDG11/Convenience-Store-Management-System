@@ -7,6 +7,7 @@ from .serializer import *
 from ..authentication.utils import get_user_from_token, hash_password
 from django.core.cache import cache
 import time
+import re
 
 
 USE_CACHE = True
@@ -92,6 +93,22 @@ class EmployeeView(APIView):
         if serialiser.is_valid():
             exists_warning = False
             valid_data = serialiser.validated_data
+
+            required_fields = ['name', 'email', 'phone_number']
+            missing_fields = [field for field in required_fields if not valid_data.get(field)]
+
+            if missing_fields:
+                return Response(
+                    {"error": f"Missing required fields: {', '.join(missing_fields)}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            if not valid_data.get('role'):
+                return Response(
+                    {"error": f"Missing required fields: role"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             employee = Employee.objects.create(
                 name=valid_data['name'],
                 email=valid_data['email'],
@@ -99,10 +116,15 @@ class EmployeeView(APIView):
                 salary=valid_data.get('salary'),
                 role=valid_data.get('role')
             )
-            if USE_HASH:
-                employee.login_password = hash_password(valid_data.get('password'))
+
+            if not valid_data.get('login_password'):
+                password = "abc"
             else:
-                employee.login_password=valid_data.get('login_password')
+                password = valid_data.get('login_password')
+            if USE_HASH:
+                employee.login_password = hash_password(password)
+            else:
+                employee.login_password = password
             employee.save()
             
             supervisor = valid_data.get('supervisor')
@@ -132,19 +154,19 @@ class EmployeeView(APIView):
                     post_code=address['post_code']
                 )
             
-            if valid_data['role'] == 0:
+            if valid_data.get('role') == 0:
                 Salesperson.objects.create(
                     employee=employee,
                     sales_target=valid_data.get('sales_target')
                 )
             
-            elif valid_data['role'] == 1:
+            elif valid_data.get('role') == 1:
                 PurchasePerson.objects.create(
                     employee=employee,
                     purchase_section=valid_data.get('purchase_section')
                 )
 
-            elif valid_data['role'] == 2:
+            elif valid_data.get('role') == 2:
                 Manager.objects.create(
                     employee=employee,
                     management_level=valid_data.get('management_level')
@@ -233,6 +255,15 @@ class EmployeeDetailView(APIView):
         if serialiser.is_valid():
             exists_warning = False
             valid_data = serialiser.validated_data
+
+            required_fields = ['name', 'email', 'phone_number']
+            missing_fields = [field for field in required_fields if not valid_data.get(field)]
+
+            if missing_fields:
+                return Response(
+                    {"error": f"Missing required fields: {', '.join(missing_fields)}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
             try:
                 employee = Employee.objects.get(employee_id = employee_id)
