@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Typography,
-  TextField,
-  Button,
-  Paper,
-  Stack,
-  Container
-} from '@mui/material';
-import { toast } from 'react-hot-toast';
+import { Typography, TextField, Button, Paper, Stack, Container } from '@mui/material';
+
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -33,8 +26,6 @@ export default function Login() {
 
       localStorage.setItem('token', data.access);
       localStorage.setItem('user', JSON.stringify(data.user));
-
-      toast.success('Login successful');
       
       const role = data.user.role;
 
@@ -49,7 +40,7 @@ export default function Login() {
       }
       
     } catch (error) {
-      toast.error(error.message || 'Login failed');
+      alert('Login Failed');
     }
   };
 
