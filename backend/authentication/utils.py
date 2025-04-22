@@ -2,6 +2,7 @@
 import jwt
 from django.conf import settings
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+import hashlib
 
 
 def get_user_from_token(request):
@@ -16,3 +17,8 @@ def get_user_from_token(request):
         except InvalidTokenError:
             return None
     return None
+
+
+SALT = 'my_fixed_salt_123'
+def hash_password(password: str) -> str:
+    return hashlib.sha256((SALT + password).encode()).hexdigest()

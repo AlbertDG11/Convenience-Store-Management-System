@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, Stack, Dialog,
   DialogTitle, DialogContent, DialogActions, TextField, Grid,
@@ -108,15 +108,6 @@ function AddEmployeeDialog({ open, onClose, onSave, managerId}) {
             </Box>
           ))}
           <Button onClick={handleAddAddress}>➕ Add Address</Button>
-          {form.role === 0 && (
-            <TextField
-              fullWidth
-              label="Sales Target"
-              value={form.sales_target || ''}
-              onChange={handleChange('sales_target')}
-              sx={{ mt: 2 }}
-            />
-          )}
           <FormControl fullWidth>
             <InputLabel>Role</InputLabel>
             <Select
@@ -129,6 +120,15 @@ function AddEmployeeDialog({ open, onClose, onSave, managerId}) {
               <MenuItem value={2}>Manager</MenuItem>
             </Select>
           </FormControl>
+          {form.role === 0 && (
+            <TextField
+              fullWidth
+              label="Sales Target"
+              value={form.sales_target || ''}
+              onChange={handleChange('sales_target')}
+              sx={{ mt: 2 }}
+            />
+          )}
           {form.role === 1 && (
             <TextField
               fullWidth
@@ -212,8 +212,8 @@ function formatAddresses(addresses) {
 
 function EmployeeDetailDialog({ employeeId, open, onClose }) {
   const [employee, setEmployee] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [/*loading*/, setLoading] = useState(false);
+  const [/*error*/, setError] = useState(null);
 
   useEffect(() => {
     if (open && employeeId) {
@@ -295,8 +295,8 @@ function EmployeeDetailDialog({ employeeId, open, onClose }) {
 function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
   const [form, setForm] = useState({});
   const [employee, setEmployee] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [/*loading*/, setLoading] = useState(false);
+  const [/*error*/, setError] = useState(null);
 
   useEffect(() => {
     if (open && employeeId) {
@@ -413,7 +413,7 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
         <TextField fullWidth label="Email" value={form.email || ''} onChange={handleChange('email')} sx={{ mt: 2 }} />
         <TextField fullWidth label="Phone" value={form.phone_number || ''} onChange={handleChange('phone_number')} sx={{ mt: 2 }} />
         <TextField fullWidth label="Salary" type="number" value={form.salary || ''} onChange={handleChange('salary')} sx={{ mt: 2 }} />
-        <TextField fullWidth label="Supervisor" value={form.supervisor || ''} onChange={handleChange('supervisor')} sx={{ mt: 2 }} />
+        <TextField fullWidth label="Supervisor" value={form.supervisor || ''} onChange={handleChange('supervisor')} disabled sx={{ mt: 2 }} />
         <FormControl fullWidth sx={{ mt: 2 }} >
           <InputLabel>Role</InputLabel>
           <Select
@@ -546,7 +546,7 @@ function DeleteSubordinateDialog({ open, managerId, subordinate, onClose, onConf
 function Subordinate(props) {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, /*setError*/] = useState(null);
   const [detailEmployee, setDetailEmployee] = useState(null);
   const [editEmployee, setEditEmployee] = useState(null);
   const [addEmployee, setAddEmployee] = useState(null);
@@ -554,38 +554,38 @@ function Subordinate(props) {
   const [filters, setFilters] = useState({
     name: '',
     phone: '',
+    role: '',
     minSalary: '',
-    maxSalary: '',
+    maxSalary: ''
   });
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
   const [subordinateToDelete, setSubordinateToDelete] = useState(null);
-  const [subordinates, setSubordinates] = useState([]);
+  const [/*subordinates*/, setSubordinates] = useState([]);
   const managerId = JSON.parse(localStorage.getItem('user')).id;
 
-  const loadSubordinates = () => {
+  const loadSubordinates = useCallback(() => {
     setLoading(true);
     const token = localStorage.getItem('token');
-    fetch(`http://localhost:8000/employee/subordinate/${managerId}/`, 
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      }
-    )
+    fetch(`http://localhost:8000/employee/subordinate/${managerId}/`, {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    })
       .then(res => res.json())
-      .then((data) => {setSubordinates(data);setEmployees(data);
-        const user = JSON.parse(localStorage.getItem('user'));
+      .then((data) => {
+        setSubordinates(data);
+        setEmployees(data);
       })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
-  };
+  }, [managerId]);
 
   useEffect(() => {
     if (managerId) loadSubordinates();
-  }, [managerId]);
+  }, [managerId, loadSubordinates]);
 
   const handleAddEmployeeSave = () => {
     loadSubordinates();
@@ -606,7 +606,7 @@ function Subordinate(props) {
   const filteredEmployees = !filterActive ? employees : employees.filter(emp => {
     const nameMatch = filters.name === '' || emp.name.toLowerCase().includes(filters.name.toLowerCase());
     const phoneMatch = filters.phone === '' || emp.phone_number.includes(filters.phone);
-    const roleMatch = filters.role === '' || emp.role === filters.role;
+    const roleMatch = filters.role === '' || emp.role === parseInt(filters.role);
     const minSalaryMatch = filters.minSalary === '' || emp.salary >= parseFloat(filters.minSalary);
     const maxSalaryMatch = filters.maxSalary === '' || emp.salary <= parseFloat(filters.maxSalary);
     return nameMatch && phoneMatch && roleMatch && minSalaryMatch && maxSalaryMatch;
@@ -639,7 +639,6 @@ function Subordinate(props) {
     <div>    
     <Box sx={{
       minHeight: '100vh',
-      backgroundImage: 'url(https://source.unsplash.com/random/1600x900?business)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       py: 6}}>
@@ -685,12 +684,12 @@ function Subordinate(props) {
               <Select
                 value={filters.role}
                 label="Role"
-                onChange={(e) => setFilters({ ...filters, role: e.target.value })}
+                onChange={(e) => setFilters({ ...filters, role: e.target.value === '' ? '' : Number(e.target.value) })}
               >
                 <MenuItem value="">All</MenuItem>
-                <MenuItem value={0}>Salesperson</MenuItem>
-                <MenuItem value={1}>Purchase Person</MenuItem>
-                <MenuItem value={2}>Manager</MenuItem>
+                <MenuItem value={'0'}>Salesperson</MenuItem>
+                <MenuItem value={'1'}>Purchase Person</MenuItem>
+                <MenuItem value={'2'}>Manager</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -729,7 +728,7 @@ function Subordinate(props) {
               color="secondary"
               variant="outlined"
               onClick={() => {
-                setFilters({ name: '', phone: '', minSalary: '', maxSalary: '' });
+                setFilters({ name: '', phone: '', role:'', minSalary: '', maxSalary: '' });
                 setFilterActive(false);
               }}
             >
