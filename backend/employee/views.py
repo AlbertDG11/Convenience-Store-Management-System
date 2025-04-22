@@ -7,11 +7,10 @@ from .serializer import *
 from ..authentication.utils import get_user_from_token, hash_password
 from django.core.cache import cache
 import time
-import re
 
 
-USE_CACHE = True
-USE_HASH = True
+USE_CACHE = False
+USE_HASH = False
 
 
 # Create your views here.
