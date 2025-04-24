@@ -378,8 +378,7 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
           'Authorization': 'Bearer ' + token,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(form),
-        credentials: 'include'
+        body: JSON.stringify(form)
       })
     .then(async res => {
       const text = await res.text();
@@ -571,8 +570,7 @@ function Subordinate(props) {
       headers: {
         'Authorization': 'Bearer ' + token,
         'Content-Type': 'application/json'
-      },
-      credentials: 'include'
+      }
     })
       .then(res => res.json())
       .then((data) => {

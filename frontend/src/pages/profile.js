@@ -156,7 +156,6 @@ function ShowProfile({ employeeId, onEdit }) {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      credentials: 'include'
     })
       .then(res => {
         if (!res.ok) throw new Error('Failed to load employee details');
