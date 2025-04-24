@@ -3,6 +3,7 @@ This program was developed as part of the CPSC 471 "Database Management Systems"
 It is a web-based convenience store management system tailored for small to medium-sized stores, supporting operations such as sales, purchasing, inventory control, and employee and supplier management.\
 The system is built using a **React–Django–MySQL** architecture. It ensures accurate operations and enforces permission control across different employee roles. A user-friendly frontend interface is also provided.\
 You can follow the instructions in the rest of this manual to build and run the program. If you encounter any problems during initialization or execution, feel free to contact us: [Zhuojun Dong](https://github.com/AlbertDG11), [Fei Ding](https://github.com/DingFei1) and [Jiaqi Chen](https://github.com/Jiaqichen2).
+---
 ## Initialise Project
 #### Backend (Django)
 From the root directory<br>
