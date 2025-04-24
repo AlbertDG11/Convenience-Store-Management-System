@@ -40,13 +40,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'backend.authentication',
-    'backend.employee',
     'backend.customer',
-    'backend.purchase',
-    'backend.product',
-    'backend.report',
-    'backend.supplier',
+    'backend.employee',
     'backend.order',
+    'backend.product',
+    'backend.purchase',
+    'backend.report',
+    'backend.supplier'
 ]
 
 
@@ -58,7 +58,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
