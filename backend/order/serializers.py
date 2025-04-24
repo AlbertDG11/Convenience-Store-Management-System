@@ -17,16 +17,16 @@ class OrderItemSerializer(serializers.ModelSerializer):
     def validate(self, data):
         product = data.get('product')
         qty = data.get('quantity_ordered')
-        inv = Inventory.objects.filter(product=product).first()
-        if inv and int(inv.quantity) < qty:
+        # Check total available across all inventories
+        total_available = sum(int(inv.quantity) for inv in Inventory.objects.filter(product=product))
+        if total_available < qty:
             raise serializers.ValidationError(
-                f"Insufficient stock for '{product.name}': have {inv.quantity}, want {qty}."
+                f"Insufficient total stock for '{product.name}': have {total_available}, want {qty}."
             )
         return data
 
-
 class OrderSerializer(serializers.ModelSerializer):
-    # This tells DRF to serialize via orderitem_set, but input still comes in as "items"
+    # Nested items come in as 'items', map to orderitem_set
     items = OrderItemSerializer(source='orderitem_set', many=True)
 
     class Meta:
@@ -41,8 +41,27 @@ class OrderSerializer(serializers.ModelSerializer):
             'payment_method', 'total_price', 'employee'
         ]
 
+    def _deduct_inventory(self, product, qty):
+        """
+        Deduct quantity from multiple Inventory records until fulfilled.
+        """
+        needed = qty
+        inventories = Inventory.objects.filter(product=product).order_by('id')
+        for inv in inventories:
+            available = int(inv.quantity)
+            if available >= needed:
+                inv.quantity = str(available - needed)
+                inv.save()
+                needed = 0
+                break
+            else:
+                inv.quantity = '0'
+                inv.save()
+                needed -= available
+        if needed > 0:
+            raise serializers.ValidationError(f"Insufficient inventory for '{product.name}'")
+
     def create(self, validated_data):
-        # Pop nested items before creating Orders
         items_data = validated_data.pop('orderitem_set', [])
         request = self.context['request']
         emp = Employee.objects.filter(employee_id=request.user.id).first()
@@ -62,9 +81,8 @@ class OrderSerializer(serializers.ModelSerializer):
                     product=prod,
                     quantity_ordered=qty
                 )
-                inv = Inventory.objects.filter(product=prod).first()
-                inv.quantity = str(int(inv.quantity) - qty)
-                inv.save()
+                # Deduct from multiple inventory records
+                self._deduct_inventory(prod, qty)
 
             order.total_price = total
             order.save()
@@ -73,7 +91,7 @@ class OrderSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         items_data = validated_data.pop('orderitem_set', None)
 
-        # Handle cancellation stock return
+        # Handle cancellation: return stock
         if (
             'order_status' in validated_data
             and validated_data['order_status'] == 'Canceled'
@@ -82,21 +100,23 @@ class OrderSerializer(serializers.ModelSerializer):
             with transaction.atomic():
                 for old in instance.orderitem_set.all():
                     inv = Inventory.objects.filter(product=old.product).first()
-                    inv.quantity = str(int(inv.quantity) + old.quantity_ordered)
-                    inv.save()
+                    if inv:
+                        inv.quantity = str(int(inv.quantity) + old.quantity_ordered)
+                        inv.save()
                 instance.order_status = 'Canceled'
 
         # If new items provided, replace old ones
         if items_data is not None:
             with transaction.atomic():
-                # First restore stock of old
+                # Restore stock of old items
                 for old in instance.orderitem_set.all():
                     inv = Inventory.objects.filter(product=old.product).first()
-                    inv.quantity = str(int(inv.quantity) + old.quantity_ordered)
-                    inv.save()
+                    if inv:
+                        inv.quantity = str(int(inv.quantity) + old.quantity_ordered)
+                        inv.save()
                 instance.orderitem_set.all().delete()
 
-                # Then create new and deduct stock
+                # Create new items and deduct stock
                 new_total = 0
                 for idx, it in enumerate(items_data, start=1):
                     prod = it['product']
@@ -109,9 +129,7 @@ class OrderSerializer(serializers.ModelSerializer):
                         product=prod,
                         quantity_ordered=qty
                     )
-                    inv = Inventory.objects.filter(product=prod).first()
-                    inv.quantity = str(int(inv.quantity) - qty)
-                    inv.save()
+                    self._deduct_inventory(prod, qty)
 
                 instance.total_price = new_total
 
