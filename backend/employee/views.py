@@ -9,7 +9,8 @@ from django.core.cache import cache
 import time
 
 
-USE_CACHE = True
+# Here to choose using Redis or not
+USE_CACHE = False
 
 # Create your views here.
 class EmployeeView(APIView):
