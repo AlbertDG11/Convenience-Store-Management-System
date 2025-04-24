@@ -32,5 +32,4 @@ class WholeEmployeeSerializer(serializers.Serializer):
     sales_target = serializers.FloatField(required=False, allow_null=True)
     purchase_section = serializers.CharField(required=False, allow_null=True)
     management_level = serializers.CharField(required=False, allow_null=True)
-    #management = serializers.ListField(child = serializers.IntegerField(), required=False, allow_null=True)
     management = ManagementRelationSerializer(many=True, required=False, allow_null=True)

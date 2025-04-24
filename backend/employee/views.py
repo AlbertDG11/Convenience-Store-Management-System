@@ -9,9 +9,7 @@ from django.core.cache import cache
 import time
 
 
-USE_CACHE = False
-USE_HASH = False
-
+USE_CACHE = True
 
 # Create your views here.
 class EmployeeView(APIView):
@@ -119,10 +117,8 @@ class EmployeeView(APIView):
                 password = "abc"
             else:
                 password = valid_data.get('login_password')
-            if USE_HASH:
-                employee.login_password = hash_password(password)
-            else:
-                employee.login_password = password
+
+            employee.login_password = hash_password(password)
             employee.save()
             
             supervisor = valid_data.get('supervisor')
@@ -277,7 +273,6 @@ class EmployeeDetailView(APIView):
             supervisor = valid_data.get('supervisor')
             if supervisor:
                 try:
-                    #manager = Manager.objects.get(employee=supervisor)
                     if employee.role == 2:
                         exists_warning = True
                         warning = "Cannot assign a supervisor for a manager"
@@ -525,12 +520,8 @@ class PasswordView(APIView):
 
         try:
             employee = Employee.objects.get(pk=employee_id)
-            if USE_HASH:
-                result = (employee.login_password == hash_password(password))
-            else:
-                result = (employee.login_password == password)
             
-            if result:
+            if employee.login_password == hash_password(password):
                 return Response({"message": "password correct"}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "Incorrect user or password"}, status=status.HTTP_403_FORBIDDEN)
@@ -548,10 +539,8 @@ class PasswordView(APIView):
 
         try:
             employee = Employee.objects.get(pk=employee_id)
-            if USE_HASH:
-                employee.login_password = hash_password(password)
-            else:
-                employee.login_password=password
+
+            employee.login_password = hash_password(password)
             employee.save()
 
             if USE_CACHE:

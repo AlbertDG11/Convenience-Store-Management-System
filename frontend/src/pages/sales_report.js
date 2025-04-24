@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend
-} from 'recharts';
-import {
-  Box, Typography, Button, Grid, TextField, Stack, Paper
-} from '@mui/material';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Box, Typography, Button, Grid, TextField, Stack, Paper } from '@mui/material';
 
 
 function DailyReportChart({ data }) {

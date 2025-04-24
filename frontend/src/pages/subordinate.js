@@ -241,7 +241,7 @@ function EmployeeDetailDialog({ employeeId, open, onClose }) {
           setLoading(false);
         });
     } else {
-      setEmployee(null); // reset when closed
+      setEmployee(null);
     }
   }, [open, employeeId]);
 
@@ -328,7 +328,7 @@ function UpdateEmployeeDialog({ open, employeeId, onClose, onSave }) {
           setLoading(false);
         });
     } else {
-      setEmployee(null); // reset when closed
+      setEmployee(null);
     }
   }, [open, employeeId]);
 

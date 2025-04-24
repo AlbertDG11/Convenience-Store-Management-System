@@ -6,8 +6,6 @@ from django.conf import settings
 from .utils import hash_password
 
 
-USE_HASH = False
-
 class AuthenticationSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
@@ -21,12 +19,7 @@ class AuthenticationSerializer(serializers.Serializer):
         except Employee.DoesNotExist:
             raise serializers.ValidationError("Invalid id")
         
-        if USE_HASH:
-            result = (employee.login_password == hash_password(password))
-        else:
-            result = (employee.login_password == password)
-
-        if not result:
+        if not (employee.login_password == hash_password(password)):
             raise serializers.ValidationError("Wrong password")
 
         payload = {
