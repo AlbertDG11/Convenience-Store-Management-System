@@ -29,6 +29,7 @@ pip install -r requirements.txt
 Migrate Database:
 ```bash
 python manage.py migrate
+python manage.py makemigrations
 ```
 
 #### Frontend (React)
@@ -36,11 +37,6 @@ Move to Frontend Directory and Install Dependency:
 ```bash
 cd frontend
 npm install
-npm install react-router-dom
-npm install @mui/icons-material
-npm install @mui/material @emotion/react @emotion/styled
-npm install axios
-npm install recharts
 ```
 <br>
 
