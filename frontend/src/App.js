@@ -37,8 +37,6 @@ export default function App() {
       
         <Route element={<ProtectedLayout />}>
 
-          {/* After login, go to Profile */}
-          {/*<Route index element={<Navigate to="/profile" replace />} />*/}
           <Route path="/profile"       element={<ProtectedRoute><Profile/></ProtectedRoute>} />
 
           {/* Customers */}
@@ -73,8 +71,8 @@ export default function App() {
         </Route>
 
 
-      {/* Fallback → profile */}
-      <Route path="*" element={<Navigate to="/profile" replace />} />
+      {/* Fallback → login */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }
