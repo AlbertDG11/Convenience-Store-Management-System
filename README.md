@@ -28,8 +28,8 @@ pip install -r requirements.txt
 
 Migrate Database:
 ```bash
-python manage.py migrate
 python manage.py makemigrations
+python manage.py migrate
 ```
 
 #### Frontend (React)
