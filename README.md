@@ -48,7 +48,6 @@ Navigate to frontend directory and install dependencies:
 cd frontend
 npm install
 ```
-<br>
 
 ## Run Project
 #### Backend (Django)
