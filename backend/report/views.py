@@ -34,10 +34,10 @@ def add_month(date):
 class SalesReportView(RoleRequiredMixin, APIView):
     allowed_roles = [2]
     def get(self, request):
-        
         start_date_str = request.GET.get('start_date')
         end_date_str = request.GET.get('end_date')
         report_type = request.GET.get('type')
+        
         try:
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
             end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
