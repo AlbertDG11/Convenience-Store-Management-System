@@ -49,6 +49,7 @@ cd frontend
 npm install
 ```
 
+
 ## Run Project
 #### Backend (Django)
 From the root directory:
@@ -64,6 +65,7 @@ python manage.py runserver
 cd frontend
 npm start
 ```
+
 
 ## Program Usage
 #### Login
