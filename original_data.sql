@@ -21,10 +21,12 @@ INSERT INTO `member_address` (`id`,`Membership_id`,`city`,`province`,`street_add
 
 -- Employee hierarchy, addresses & roles 
 INSERT INTO `employee` (`employee_id`,`name`,`email`,`phone_number`,`salary`,`login_password`,`role`,`Supervisor_id`) VALUES
-(1,'Frank','frank@corp.com','111-111-1111',80000.00,'2d2f5cad1189ae270dce596a623f9160b688225a7aa7c19d9f624924a8750d76',2,NULL),  (2,'Grace','grace@corp.com','222-222-2222',60000.00,'48218a8715a9a93419ce23a5f5cc516123485e16854227d3a51b175090bcca6d',0,1),
+(1,'Frank','frank@corp.com','111-111-1111',80000.00,'2d2f5cad1189ae270dce596a623f9160b688225a7aa7c19d9f624924a8750d76',2,NULL),
+(2,'Grace','grace@corp.com','222-222-2222',60000.00,'48218a8715a9a93419ce23a5f5cc516123485e16854227d3a51b175090bcca6d',0,1),
 (3,'Heidi','heidi@corp.com','333-333-3333',55000.00,'c9ca2cdd3113ad881406db3fe4192873436cbc6c7c15e20226dbbd5329796d4e',0,1),
 (4,'Ivan','ivan@corp.com','444-444-4444',50000.00,'9d7afda0bb765da2cf511f3d7e6c6fe978f9994669624d0be7df0f72ad308539',1,2),
-(5,'Judy','judy@corp.com','555-555-5555',52000.00,'ba9e908a690690ea900ad7ed427967f265fb0fb3ebbe1286fc613ea5c9ee82a3',1,3),  (6,'Karl','karl@corp.com','666-666-6666',90000.00,'ac54d5ee6b7ca4ec70425afa32b9dcf0959f3d2192341dd9728922064dd5f0c8',2,NULL);
+(5,'Judy','judy@corp.com','555-555-5555',52000.00,'ba9e908a690690ea900ad7ed427967f265fb0fb3ebbe1286fc613ea5c9ee82a3',1,3), 
+(6,'Karl','karl@corp.com','666-666-6666',90000.00,'ac54d5ee6b7ca4ec70425afa32b9dcf0959f3d2192341dd9728922064dd5f0c8',2,NULL);
 
 -- employee addresses
 INSERT INTO `employee_address` (`id`,`Employee_id`,`province`,`city`,`street_address`,`post_code`) VALUES
