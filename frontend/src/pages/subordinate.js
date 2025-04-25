@@ -25,7 +25,7 @@ function getRole(roleCode) {
 
 
 function AddEmployeeDialog({ open, onClose, onSave, managerId}) {
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState({role: 0});
   const [addresses, setAddresses] = useState([
     { province: '', city: '', street_address: '', post_code: '' }
   ]);
@@ -83,6 +83,13 @@ function AddEmployeeDialog({ open, onClose, onSave, managerId}) {
     });
   };
 
+  const handleRoleChange = (event) => {
+    setForm({
+      ...form,
+      role: Number(event.target.value),
+    });
+  };
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Add Employee</DialogTitle>
@@ -111,9 +118,9 @@ function AddEmployeeDialog({ open, onClose, onSave, managerId}) {
           <FormControl fullWidth>
             <InputLabel>Role</InputLabel>
             <Select
-              value={form.role ?? ''}
+              value={form.role}
               label="Role"
-              onChange={handleChange('role')}
+              onChange={handleRoleChange}
             >
               <MenuItem value={0}>Salesperson</MenuItem>
               <MenuItem value={1}>Purchase Person</MenuItem>

@@ -100,7 +100,7 @@ class EmployeeView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
-            if not valid_data.get('role'):
+            if valid_data.get('role') is None:
                 return Response(
                     {"error": f"Missing required fields: role"},
                     status=status.HTTP_400_BAD_REQUEST
