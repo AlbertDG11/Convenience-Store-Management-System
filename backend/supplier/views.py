@@ -9,7 +9,7 @@ from .serializer import SupplierSerializer
 from .models import SupplierAddress
 from .serializer import SupplierAddressSerializer
 
-class SupplierViewSet(RoleRequiredMixin, viewsets.ModelViewSet):
+class SupplierViewSet(viewsets.ModelViewSet):
     
     allowed_roles = [1,2]
     queryset = Supplier.objects.all()
@@ -55,7 +55,7 @@ class SupplierViewSet(RoleRequiredMixin, viewsets.ModelViewSet):
     #    supplier.delete()
     #    return Response(status=status.HTTP_204_NO_CONTENT)
 
-class SupplieraddressViewSet(RoleRequiredMixin, viewsets.ModelViewSet):
+class SupplieraddressViewSet(viewsets.ModelViewSet):
     allowed_roles = [1,2]
     queryset = SupplierAddress.objects.all()
     serializer_class = SupplierAddressSerializer
