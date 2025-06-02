@@ -183,7 +183,7 @@ function ShowProfile({ employeeId, onEdit }) {
           p: 3,
           backgroundColor: 'white',
           borderColor: 'grey.300',
-          borderRadius: 2  // 比默认圆润
+          borderRadius: 2
         }}
       >
         <Box
@@ -479,7 +479,7 @@ function EditProfile({ employeeId, onSave, onCancel }) {
 }
 
 
-function Profile(props) {
+function Profile() {
   const [mode, setMode] = useState('view');
   const employeeId = JSON.parse(localStorage.getItem('user')).id;
 

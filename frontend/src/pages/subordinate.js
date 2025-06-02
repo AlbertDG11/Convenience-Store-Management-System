@@ -24,7 +24,7 @@ function getRole(roleCode) {
 }
 
 
-function AddEmployeeDialog({ open, onClose, onSave, managerId}) {
+function AddEmployeeDialog({ open, onClose, onSave, managerId }) {
   const [form, setForm] = useState({role: 0});
   const [addresses, setAddresses] = useState([
     { province: '', city: '', street_address: '', post_code: '' }
@@ -549,7 +549,7 @@ function DeleteSubordinateDialog({ open, managerId, subordinate, onClose, onConf
 }
 
 
-function Subordinate(props) {
+function Subordinate() {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, /*setError*/] = useState(null);

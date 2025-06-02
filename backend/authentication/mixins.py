@@ -8,6 +8,8 @@ class RoleRequiredMixin:
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
         user_info = get_user_from_token(request)
+        print(user_info['role'])
+        print(self.allowed_roles)
         if not user_info:
             raise AuthenticationFailed('Unauthorized')
         if self.allowed_roles and user_info['role'] not in self.allowed_roles:

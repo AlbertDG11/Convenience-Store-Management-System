@@ -106,7 +106,7 @@ function EmployeeDetailDialog({ employeeId, open, onClose }) {
 }
 
 
-function EmployeeContact(props) {
+function EmployeeContact() {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

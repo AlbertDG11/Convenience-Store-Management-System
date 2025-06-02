@@ -39,8 +39,13 @@ export default function PurchaseReportDashboard() {
   const [data,      setData]      = useState([]);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
     axios.get('http://localhost:8000/report/purchase/', {
-      params: { start_date: startDate, end_date: endDate, type: reportType }
+      params: { start_date: startDate, end_date: endDate, type: reportType },
+      headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
     })
     .then(res => setData(res.data))
     .catch(err => console.error(err));
