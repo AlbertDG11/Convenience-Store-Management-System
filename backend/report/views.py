@@ -31,7 +31,7 @@ def add_month(date):
     else:
         return date.replace(month=date.month + 1)
 
-class SalesReportView(APIView):
+class SalesReportView(RoleRequiredMixin, APIView):
     allowed_roles = [2]
     def get(self, request):
         start_date_str = request.GET.get('start_date')
@@ -160,7 +160,7 @@ class SalesReportView(APIView):
 
 
         
-class PurchaseDailyView(APIView):
+class PurchaseDailyView(RoleRequiredMixin, APIView):
     allowed_roles = [2]
     """
     GET /report/purchase/?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&type=<daily|weekly|monthly>

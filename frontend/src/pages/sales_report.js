@@ -26,8 +26,13 @@ function SalesReportDashboard() {
   const [endDate, setEndDate] = useState('2025-04-17');
   const [data, setData] = useState([]);
   useEffect(() => {
+    const token = localStorage.getItem('token');
     axios.get('http://localhost:8000/report/sales/', {
-        params: { start_date: startDate, end_date: endDate, type: reportType }
+        params: { start_date: startDate, end_date: endDate, type: reportType },
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       })
       .then(res => setData(res.data))
       .catch(err => console.error(err));
@@ -69,7 +74,6 @@ function SalesReportDashboard() {
               size="small"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
             />
           </Grid>
           <Grid item>
@@ -79,7 +83,6 @@ function SalesReportDashboard() {
               size="small"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
             />
           </Grid>
         </Grid>

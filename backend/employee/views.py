@@ -7,6 +7,7 @@ from .serializer import *
 from ..authentication.utils import get_user_from_token, hash_password
 from django.core.cache import cache
 import time
+from ..authentication.mixins import RoleRequiredMixin
 
 
 # Here to choose using Redis or not
