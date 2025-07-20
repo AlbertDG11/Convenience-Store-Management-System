@@ -4,6 +4,65 @@ It is a web-based convenience store management system tailored for small to medi
 The system is built using a **React–Django–MySQL** architecture. It ensures accurate operations and enforces permission control across different employee roles. A user-friendly frontend interface is also provided.<br>
 You can follow the instructions in the rest of this manual to build and run the program. If you encounter any problems during initialization or execution, feel free to contact us: [Zhuojun Dong](https://github.com/AlbertDG11), [Fei Ding](https://github.com/DingFei1) and [Jiaqi Chen](https://github.com/Jiaqichen2).<br><br>
 
+## 🐳 Docker Deployment (Recommended)
+
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+- Git (for cloning the repository)
+
+### Quick Start
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd Convenience-Store-Management-System
+   ```
+
+2. **Start all services** (MySQL, Django backend, React frontend):
+   ```bash
+   docker-compose up --build
+   ```
+
+3. **Initialize database** (first time only):
+   ```bash
+   # Run database migrations
+   docker exec convenience_backend python manage.py migrate
+   
+   # Import initial data
+   docker cp original_data.sql convenience_mysql:/tmp/original_data.sql
+   docker exec convenience_mysql mysql -u django_user -pdjango_password conveniencestoredb -e "source /tmp/original_data.sql"
+   ```
+
+4. **Access the application**:
+   - **Frontend**: http://localhost:3000
+   - **Backend API**: http://localhost:8000
+   - **Admin Panel**: http://localhost:8000/admin
+
+### Docker Commands
+```bash
+# Start services in background
+docker-compose up -d
+
+# Stop services
+docker-compose down
+
+# View logs
+docker-compose logs
+
+# Rebuild and start
+docker-compose up --build
+```
+
+### Production Deployment
+To deploy to a cloud server:
+1. Install Docker on your server
+2. Copy project files to server
+3. Run: `docker-compose up -d --build`
+4. Access via server IP: `http://your-server-ip:3000`
+
+---
+
+## 📦 Manual Installation (Alternative)
+
 ## Initialise Project
 #### Backend (Django)
 From the root directory<br>

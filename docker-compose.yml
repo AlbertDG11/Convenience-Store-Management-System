@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: convenience_mysql
+    environment:
+      MYSQL_DATABASE: conveniencestoredb
+      MYSQL_USER: django_user
+      MYSQL_PASSWORD: django_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - convenience_network
+
+  backend:
+    build: .
+    container_name: convenience_backend
+    environment:
+      DB_HOST: mysql
+      DB_NAME: conveniencestoredb
+      DB_USER: django_user
+      DB_PASSWORD: django_password
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    volumes:
+      - .:/app
+    networks:
+      - convenience_network
+
+  frontend:
+    build: ./frontend
+    container_name: convenience_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - convenience_network
+
+volumes:
+  mysql_data:
+
+networks:
+  convenience_network:
+    driver: bridge

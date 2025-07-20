@@ -140,7 +140,7 @@ INSERT INTO `orders` (`order_id`,`create_time`,`delivery_address`,`payment_metho
   (27,'2025-04-05 14:55:00','787 Grape Ave',    'Debit Card','Shipped',  NULL,            19.00,2,3),
   (28,'2025-04-10 16:40:00','898 Honey Rd',     'Cash',       'Processing','Call ahead',      12.25,3,4),
   (29,'2025-04-15 10:05:00','909 Indigo Blvd',  'Credit Card','Pending',   NULL,            18.50,4,5),
-  (30,'2025-04-20 19:30:00','101 Jackfruit Dr','Debit Card','Delivered','Beware dog',       25.60,5,4)
+  (30,'2025-04-20 19:30:00','101 Jackfruit Dr','Debit Card','Delivered','Beware dog',       25.60,5,4);
 
 INSERT INTO `order_item` (`id`,`Order_id`,`item_id`,`Product_id`,`quantity_ordered`) VALUES
   (1,1,1,2001,2),  (2,1,2,2005,3),
